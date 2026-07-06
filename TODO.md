@@ -1,8 +1,16 @@
 # TODO: receptsajten
 
-- [x] starter.json: konvertera 6 startrecept till kanoniskt g/ml + varukategorier (1 msk=15 ml, 1 tsk=5 ml, 1 dl=100 ml + livsmedelsvikter)
-- [x] Frontend: index.html + app.js. Vyer: Recept / Receptdetalj / Inköpslista / Logga in. Portionsväljare, summering, avbockning, kategorigruppering, källrecept per rad, extraposter, noindex, egen design (frontend-design-skill)
-- [x] Worker: schema.sql, worker.js, wrangler.toml. `wrangler d1 create recept`, deploy till recept-api.orgutveckling.se
-- [x] Verifiera: register/login/state-roundtrip. Lök summeras över Köttfärssås+Kebab. Avbockning överlever reload. Skalning 16 till 4 port. Andra enheten ser samma lista
-- [x] Publicera: `gh repo create Elwyndaz/recept --public`, push, aktivera Pages, orgutveckling.se/recept/
-- [ ] Senare: fler recept ur recept 2.mht
+Byggt och live 2026-07-07: sajt, worker, D1, konton, kvittolista, 6 startrecept. Se PROJECT.md för arkitektur.
+
+## Kvar / idéer
+- [ ] Fler recept ur `recept 2.mht` konverterade till starter.json-format (kandidater: Salsiccia med fänkål, Höstgryta Irland, Korv & halloumigryta, Kyckling cashew, Sausage ragu, Tomato & basil soup). OBS: nya starter-recept når bara NYA konton; befintliga användare får lägga in dem via UI:t eller importfunktion (saknas).
+- [ ] Riktig verifiering i mobil/butik: registrera, välj recept, bocka av, ladda om, andra enheten.
+- [ ] Karls loomisar saknar steg ("Inga steg nedskrivna") — fråga Karl.
+- [ ] Ev. PWA-manifest så sajten kan läggas på hemskärmen och funka offline i butiken.
+- [ ] Ev. "dela recept till kompis"-funktion (export/import av ett recept som JSON eller länk).
+- [ ] Ev. PIN-reset utan att state går förlorat (admin-endpoint eller manuell D1-rutin, se PROJECT.md).
+
+## Kända begränsningar (medvetna)
+- Sista skrivning vinner vid sync; ok eftersom varje lista har en ägare.
+- Summering kräver identisk stavning av ingrediensnamn mellan recept.
+- Ingen e-post, ingen självservice-PIN-återställning.
