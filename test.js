@@ -1,7 +1,7 @@
 // ponytail: minsta möjliga check av summering/skalning - körs med: node test.js
 const assert = require('assert');
 const fs = require('fs');
-const { aggregate, fmtNum, fmtItem } = require('./app.js');
+const { aggregate, fmtNum, fmtItem, parseImport } = require('./app.js');
 
 const recipes = JSON.parse(fs.readFileSync(__dirname + '/starter.json', 'utf8'));
 
@@ -29,5 +29,17 @@ assert.strictEqual(fmtItem(peppar), 'efter smak');
 // 5. svenskt talformat
 assert.strictEqual(fmtNum(1234), '1 235', 'avrundas till närmsta 5, tusentalsmellanslag');
 assert.strictEqual(fmtNum(2.5), '2,5', 'decimalkomma');
+
+// 6. AI-import: kodstaket + prat runt JSON ska tolereras, fält normaliseras
+const aiSvar = 'Här är receptet!\n```json\n{"title":"Testgryta","portions":4,"ingredients":[{"name":"Gul Lök ","amount":110,"unit":"g","count":1,"cat":"grönt"},{"name":"salt","toTaste":true,"cat":"felkategori"},{"name":"vatten","amount":500,"unit":"ml","skipList":true,"cat":"övrigt"}],"steps":["Koka.",""]}\n```';
+const imp = parseImport(aiSvar, ['testgryta']);
+assert.strictEqual(imp.id, 'testgryta-2', 'krockande id får suffix');
+assert.strictEqual(imp.ingredients[0].name, 'Gul Lök', 'namn trimmas');
+assert.strictEqual(imp.ingredients[1].cat, 'övrigt', 'okänd kategori faller tillbaka');
+assert.strictEqual(imp.ingredients[1].toTaste, true);
+assert.strictEqual(imp.ingredients[2].skipList, true);
+assert.strictEqual(imp.steps.length, 1, 'tomma steg filtreras');
+assert.throws(() => parseImport('inget json här', []), /Hittar ingen JSON/);
+assert.throws(() => parseImport('{"portions":4}', []), /title/);
 
 console.log('Alla test OK');

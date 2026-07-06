@@ -69,7 +69,67 @@ function slugify(title, taken) {
   return id;
 }
 
-if (typeof module !== 'undefined') { module.exports = { CATS, aggregate, fmtNum, fmtItem, fmtIngredient, keyOf, slugify }; }
+// Tolkar och normaliserar JSON som en AI-modell producerat med importprompten.
+function parseImport(text, takenIds) {
+  let t = String(text).trim().replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/, '');
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if (a === -1 || b <= a) throw new Error('Hittar ingen JSON i det inklistrade. Klistra in hela svaret från AI-modellen.');
+  let d;
+  try { d = JSON.parse(t.slice(a, b + 1)); } catch (e) { throw new Error('Trasig JSON: ' + e.message); }
+  if (typeof d.title !== 'string' || !d.title.trim()) throw new Error('Fältet "title" saknas.');
+  if (!Array.isArray(d.ingredients) || !d.ingredients.length) throw new Error('Fältet "ingredients" saknas eller är tomt.');
+  const ingredients = d.ingredients.map(x => {
+    if (!x || typeof x.name !== 'string' || !x.name.trim()) throw new Error('En ingrediens saknar namn.');
+    const ing = { name: x.name.trim(), cat: CATS.includes(x.cat) ? x.cat : 'övrigt' };
+    if (typeof x.amount === 'number' && x.amount > 0) { ing.amount = x.amount; ing.unit = x.unit === 'ml' ? 'ml' : 'g'; }
+    else ing.toTaste = true;
+    if (typeof x.count === 'number' && x.count > 0) { ing.count = x.count; ing.countUnit = typeof x.countUnit === 'string' && x.countUnit.trim() ? x.countUnit.trim() : 'st'; }
+    if (x.skipList === true) ing.skipList = true;
+    if (typeof x.group === 'string' && x.group.trim()) ing.group = x.group.trim();
+    return ing;
+  });
+  return {
+    id: slugify(d.title, takenIds),
+    title: d.title.trim(),
+    portions: typeof d.portions === 'number' && d.portions >= 1 ? Math.round(d.portions) : 4,
+    source: typeof d.source === 'string' ? d.source.trim() : '',
+    ingredients,
+    steps: Array.isArray(d.steps) ? d.steps.filter(s => typeof s === 'string' && s.trim()).map(s => s.trim()) : [],
+  };
+}
+
+const AI_PROMPT = `Du får ett recept nedan. Gör om det till JSON enligt exakt detta format och svara med ENBART JSON, utan kodstaket och utan förklaringar.
+
+{
+  "title": "Receptets namn",
+  "portions": 4,
+  "source": "",
+  "ingredients": [
+    { "name": "gul lök", "amount": 220, "unit": "g", "count": 2, "countUnit": "st", "cat": "grönt" },
+    { "name": "olivolja", "amount": 30, "unit": "ml", "cat": "skafferi" },
+    { "name": "salt", "toTaste": true, "cat": "skafferi" },
+    { "name": "vatten", "amount": 200, "unit": "ml", "skipList": true, "cat": "övrigt" }
+  ],
+  "steps": ["Första steget.", "Andra steget."]
+}
+
+Regler:
+- Alla mängder i gram ("unit": "g") eller milliliter ("unit": "ml"). Konvertera: 1 msk = 15 ml, 1 tsk = 5 ml, 1 krm = 1 ml, 1 dl = 100 ml.
+- Styckvaror: räkna om till gram med normalvikter (gul lök 110 g/st, morot 120 g/st, tomat 120 g/st, vitlök 5 g/klyfta, lime 65 g/st, potatis 100 g/st) och ange dessutom "count" (ungefärligt antal) och "countUnit" ("st", "klyftor", "burk", "förp", "bunt").
+- Torrvaror per dl: vetemjöl 60 g, socker 85 g, ris 85 g, havregryn 35 g, riven ost 40 g, linser 85 g. Smör: 1 msk = 15 g.
+- Kryddor eller annat utan angiven mängd ("efter smak", "till servering"): utelämna "amount" och sätt "toTaste": true.
+- Vatten och annat man inte köper i butiken: behåll mängden men sätt "skipList": true.
+- "cat" måste vara exakt en av: "grönt", "kött", "mejeri", "skafferi", "fryst", "övrigt".
+- "portions": antalet portioner receptet gäller. Framgår det inte, uppskatta.
+- Har receptet delar (t.ex. sås, garnering): sätt "group": "Sås" osv. på de ingrediensernas rader.
+- "steps": tillagningsstegen som en lista med strängar, ett steg per element. Saknas steg: tom lista.
+- Ingrediensnamn: gemener, korta och butiksvänliga ("gul lök", inte "finhackad stor gul lök"). Samma vara ska heta samma sak som i andra recept.
+- "source": receptets webbadress om den framgår, annars tom sträng.
+
+Recept:
+`;
+
+if (typeof module !== 'undefined') { module.exports = { CATS, aggregate, fmtNum, fmtItem, fmtIngredient, keyOf, slugify, parseImport }; }
 
 // ---------- app ----------
 if (typeof document !== 'undefined') (async function () {
@@ -139,7 +199,7 @@ if (typeof document !== 'undefined') (async function () {
         </div>
       </article>`;
     }).join('');
-    return `<div class="view-head"><h1>Mina recept</h1><a class="btn btn-ghost" href="#/nytt">+ Nytt recept</a></div>
+    return `<div class="view-head"><h1>Mina recept</h1><span><a class="btn btn-ghost" href="#/nytt">+ Nytt recept</a> <a class="btn btn-ghost" href="#/importera">Klistra in från AI</a></span></div>
       ${state.recipes.length ? `<div class="cards">${cards}</div>` : '<p class="empty">Inga recept än. Lägg till ditt första med "Nytt recept".</p>'}`;
   }
 
@@ -206,7 +266,7 @@ if (typeof document !== 'undefined') (async function () {
     return `<div class="view-head"><h1>Inköpslista</h1></div>
       ${total === 0 ? '<p class="empty">Listan är tom. Lägg recept i listan under Recept.</p>' : `
       <div class="kvitto">
-        <div class="kvitto-head">DOM VI BRUKAR LAGA<br>${new Date().toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+        <div class="kvitto-head">GRAMMAT<br>${new Date().toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
         <div class="kvitto-recipes">${recipesLine}</div>
         ${body}
         <div class="kvitto-foot">SUMMA: ${total} varor · ${doneCount} avbockade</div>
@@ -245,6 +305,23 @@ if (typeof document !== 'undefined') (async function () {
         <p><button class="btn" type="submit">Spara recept</button> <a class="btn btn-ghost" href="${r ? '#/recept/' + esc(r.id) : '#/'}">Avbryt</a></p>
       </form>
       <template id="edRowTpl">${rowHtml()}</template>`;
+  }
+
+  function viewImport() {
+    return `<div class="view-head"><h1>Klistra in från AI</h1></div>
+      <ol class="steps howto">
+        <li>Kopiera prompten nedan.</li>
+        <li>Klistra in den i valfri AI-modell (Claude, ChatGPT, Gemini ...) och klistra in receptet efter, eller ge en länk till receptet.</li>
+        <li>Kopiera JSON-svaret du får tillbaka och klistra in det i rutan längst ner. Klart.</li>
+      </ol>
+      <p><button class="btn" id="copyPrompt">Kopiera prompten</button></p>
+      <details class="prompt-box"><summary>Visa prompten</summary><pre>${esc(AI_PROMPT)}</pre></details>
+      <form id="importForm">
+        <label>AI-modellens svar
+        <textarea id="importText" rows="10" placeholder='{ "title": ... }' required></textarea></label>
+        <p id="importError" class="warn" hidden></p>
+        <p><button class="btn" type="submit">Läs in receptet</button></p>
+      </form>`;
   }
 
   function viewAccount() {
@@ -286,6 +363,7 @@ if (typeof document !== 'undefined') (async function () {
     if (m && m[1] === 'recept') html = viewRecipe(decodeURIComponent(m[2]));
     else if (m && m[1] === 'redigera') html = viewEditor(decodeURIComponent(m[2]));
     else if (h === '#/nytt') html = viewEditor(null);
+    else if (h === '#/importera') html = viewImport();
     else if (h === '#/lista') html = viewList();
     else if (h === '#/konto') html = viewAccount();
     else html = viewCatalog();
@@ -392,6 +470,28 @@ if (typeof document !== 'undefined') (async function () {
         save();
       };
     }
+
+    const copyBtn = $('#copyPrompt');
+    if (copyBtn) copyBtn.onclick = async () => {
+      try { await navigator.clipboard.writeText(AI_PROMPT); copyBtn.textContent = 'Kopierad!'; }
+      catch (e) { copyBtn.textContent = 'Kunde inte kopiera, visa prompten och kopiera manuellt'; }
+      setTimeout(() => { copyBtn.textContent = 'Kopiera prompten'; }, 2500);
+    };
+    const importForm = $('#importForm');
+    if (importForm) importForm.onsubmit = e => {
+      e.preventDefault();
+      const errEl = $('#importError');
+      errEl.hidden = true;
+      try {
+        const recipe = parseImport($('#importText').value, state.recipes.map(r => r.id));
+        state.recipes.push(recipe);
+        location.hash = '#/recept/' + recipe.id;
+        save();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+      }
+    };
 
     const authForm = $('#authForm');
     if (authForm) {
