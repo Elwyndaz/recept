@@ -1,0 +1,9 @@
+name = "recept-api"
+main = "worker.js"
+compatibility_date = "2026-07-06"
+routes = [{ pattern = "recept-api.orgutveckling.se", custom_domain = true }]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "recept"
+database_id = "FILL_AFTER_CREATE"

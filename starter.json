@@ -1,0 +1,165 @@
+[
+  {
+    "id": "kottfarssas",
+    "title": "Köttfärssås",
+    "portions": 6,
+    "source": "",
+    "ingredients": [
+      { "name": "nötfärs", "amount": 800, "unit": "g", "cat": "kött" },
+      { "name": "gul lök", "amount": 220, "unit": "g", "count": 2, "countUnit": "st", "cat": "grönt" },
+      { "name": "morot", "amount": 240, "unit": "g", "count": 2, "countUnit": "st", "cat": "grönt" },
+      { "name": "stjälkselleri", "amount": 80, "unit": "g", "count": 2, "countUnit": "stjälkar", "cat": "grönt" },
+      { "name": "vitlök", "amount": 20, "unit": "g", "count": 4, "countUnit": "klyftor", "cat": "grönt" },
+      { "name": "olivolja", "amount": 100, "unit": "ml", "cat": "skafferi" },
+      { "name": "tomatpuré", "amount": 90, "unit": "ml", "cat": "skafferi" },
+      { "name": "rött vin (eller vatten)", "amount": 200, "unit": "ml", "cat": "övrigt" },
+      { "name": "krossade tomater", "amount": 800, "unit": "g", "cat": "skafferi" },
+      { "name": "torkad oregano", "amount": 3, "unit": "g", "cat": "skafferi" },
+      { "name": "torkad timjan", "amount": 2, "unit": "g", "cat": "skafferi" },
+      { "name": "lagerblad", "amount": 1, "unit": "g", "count": 2, "countUnit": "st", "cat": "skafferi" },
+      { "name": "salt", "amount": 12, "unit": "g", "cat": "skafferi" },
+      { "name": "svartpeppar", "toTaste": true, "cat": "skafferi" },
+      { "name": "pasta (till servering)", "amount": 480, "unit": "g", "cat": "skafferi" }
+    ],
+    "steps": [
+      "Finhacka lök, morot och selleri så fint du kan. Fräs mjukt i olivoljan utan att det tar färg.",
+      "Tryck till vitlöksklyftorna med knivbladet, finhacka och låt fräsa med i någon minut.",
+      "Tillsätt köttfärsen lite i taget så att den bryns och inte kokar. Tillsätt tomatpurén och fräs någon minut till.",
+      "Häll i vinet (eller vattnet) och låt koka upp snabbt.",
+      "Tillsätt krossade tomater, oregano, timjan och lagerblad. Salta och peppra. Låt puttra under lock i minst 20 minuter, gärna längre.",
+      "Servera med nykokt pasta."
+    ]
+  },
+  {
+    "id": "kebab",
+    "title": "Kebab i långpanna",
+    "portions": 6,
+    "source": "https://zeinaskitchen.se/kafta-kottfarskebab-i-langpanna/",
+    "ingredients": [
+      { "name": "köttfärs", "amount": 1000, "unit": "g", "group": "Kebaben", "cat": "kött" },
+      { "name": "rödlök", "amount": 80, "unit": "g", "count": 1, "countUnit": "st", "group": "Kebaben", "cat": "grönt" },
+      { "name": "persilja", "amount": 40, "unit": "g", "count": 1, "countUnit": "bunt", "group": "Kebaben", "cat": "grönt" },
+      { "name": "vitlök", "amount": 5, "unit": "g", "count": 1, "countUnit": "klyftor", "group": "Kebaben", "cat": "grönt" },
+      { "name": "gurkmeja", "amount": 3, "unit": "g", "group": "Kebaben", "cat": "skafferi" },
+      { "name": "kaftakrydda (eller 7 kryddor)", "amount": 4, "unit": "g", "group": "Kebaben", "cat": "skafferi" },
+      { "name": "salt", "amount": 6, "unit": "g", "group": "Kebaben", "cat": "skafferi" },
+      { "name": "svartpeppar", "amount": 3, "unit": "g", "group": "Kebaben", "cat": "skafferi" },
+      { "name": "rödlök", "amount": 200, "unit": "g", "count": 2, "countUnit": "st", "group": "Garnering", "cat": "grönt" },
+      { "name": "sivri (turkisk paprika) eller grön paprika", "amount": 150, "unit": "g", "group": "Garnering", "cat": "grönt" },
+      { "name": "tomat", "amount": 360, "unit": "g", "count": 3, "countUnit": "st", "group": "Garnering", "cat": "grönt" },
+      { "name": "olivolja", "amount": 70, "unit": "ml", "group": "Garnering", "cat": "skafferi" },
+      { "name": "sumak (eller citron)", "amount": 10, "unit": "g", "group": "Garnering", "cat": "skafferi" }
+    ],
+    "steps": [
+      "Blanda alla ingredienser till kebaben. Blanda inte färsen mer än nödvändigt, då trådar den sig och blir seg.",
+      "Platta ut köttet jämnt i en långpanna, ca 30×40 cm. Skär ut jämnstora kebabbitar.",
+      "Skär rödlöken i klyftor, gör ett kryss på tomaterna och lägg dem över färsen tillsammans med sivri eller paprikaklyftor.",
+      "Värm ugnen till 275 grader, gärna med grillfunktion. Ringla olivolja över allt på plåten och strö på sumak.",
+      "Grilla mitt i ugnen ca 15 minuter. Servera genast med sallad, pommes, ris eller bulgur."
+    ]
+  },
+  {
+    "id": "lovbiff-teriyaki",
+    "title": "Lövbiff teriyaki med pak choi",
+    "portions": 8,
+    "source": "https://www.ica.se/recept/lovbiff-teriyaki-med-pak-choi-och-lime-719793/",
+    "ingredients": [
+      { "name": "ris (gärna jasmin)", "amount": 500, "unit": "g", "cat": "skafferi" },
+      { "name": "japansk soja", "amount": 200, "unit": "ml", "group": "Sås", "cat": "skafferi" },
+      { "name": "vatten", "amount": 100, "unit": "ml", "group": "Sås", "skipList": true, "cat": "övrigt" },
+      { "name": "honung (eller strösocker)", "amount": 100, "unit": "ml", "group": "Sås", "cat": "skafferi" },
+      { "name": "färsk ingefära", "amount": 30, "unit": "g", "group": "Sås", "cat": "grönt" },
+      { "name": "vitlök", "amount": 10, "unit": "g", "count": 2, "countUnit": "klyftor", "group": "Sås", "cat": "grönt" },
+      { "name": "majsstärkelse", "amount": 6, "unit": "g", "group": "Sås", "cat": "skafferi" },
+      { "name": "sambal oelek", "amount": 20, "unit": "ml", "group": "Grönsaker", "cat": "skafferi" },
+      { "name": "lime", "amount": 130, "unit": "g", "count": 2, "countUnit": "st", "group": "Grönsaker", "cat": "grönt" },
+      { "name": "olja", "amount": 30, "unit": "ml", "group": "Grönsaker", "cat": "skafferi" },
+      { "name": "salt", "toTaste": true, "group": "Grönsaker", "cat": "skafferi" },
+      { "name": "stjälkselleri", "amount": 450, "unit": "g", "count": 1, "countUnit": "förp", "group": "Grönsaker", "cat": "grönt" },
+      { "name": "pak choi", "amount": 500, "unit": "g", "group": "Grönsaker", "cat": "grönt" },
+      { "name": "lövbiff", "amount": 1000, "unit": "g", "group": "Kött", "cat": "kött" },
+      { "name": "olja", "amount": 30, "unit": "ml", "group": "Kött", "cat": "skafferi" },
+      { "name": "sesamfrön", "amount": 20, "unit": "g", "group": "Kött", "cat": "skafferi" }
+    ],
+    "steps": [
+      "Koka riset enligt anvisningen på förpackningen.",
+      "Sås: blanda alla ingredienser i en kastrull. Koka såsen 3–5 minuter under omrörning.",
+      "Grönsaker: blanda sambal oelek, pressad limesaft och olja i en skål. Smaka av med salt. Ansa och strimla selleri och pak choi, vänd ner grönsakerna.",
+      "Strimla köttet. Stek det i oljan i omgångar i en het stekpanna tills det fått fin färg.",
+      "Häll på såsen och koka några minuter. Strö sesamfrön över köttet.",
+      "Servera köttet med ris och grönsaker."
+    ]
+  },
+  {
+    "id": "veg-lasagne",
+    "title": "Vegetarisk lasagne",
+    "portions": 16,
+    "source": "https://undertian.com/recept/billig-vegetarisk-lasagne/",
+    "ingredients": [
+      { "name": "gul lök", "amount": 440, "unit": "g", "count": 4, "countUnit": "st", "group": "Lins- och tomatsås", "cat": "grönt" },
+      { "name": "röda linser (torkade)", "amount": 680, "unit": "g", "group": "Lins- och tomatsås", "cat": "skafferi" },
+      { "name": "krossade tomater", "amount": 1600, "unit": "g", "group": "Lins- och tomatsås", "cat": "skafferi" },
+      { "name": "vatten", "amount": 1200, "unit": "ml", "group": "Lins- och tomatsås", "skipList": true, "cat": "övrigt" },
+      { "name": "morot", "amount": 960, "unit": "g", "count": 8, "countUnit": "st", "group": "Lins- och tomatsås", "cat": "grönt" },
+      { "name": "grönsaksbuljongtärning", "amount": 44, "unit": "g", "count": 4, "countUnit": "st", "group": "Lins- och tomatsås", "cat": "skafferi" },
+      { "name": "tomatpuré", "amount": 60, "unit": "ml", "group": "Lins- och tomatsås", "cat": "skafferi" },
+      { "name": "vitlök", "amount": 20, "unit": "g", "count": 4, "countUnit": "klyftor", "group": "Lins- och tomatsås", "cat": "grönt" },
+      { "name": "torkade örter (basilika/oregano/timjan)", "amount": 12, "unit": "g", "group": "Lins- och tomatsås", "cat": "skafferi" },
+      { "name": "salt", "toTaste": true, "group": "Lins- och tomatsås", "cat": "skafferi" },
+      { "name": "svartpeppar", "toTaste": true, "group": "Lins- och tomatsås", "cat": "skafferi" },
+      { "name": "olja att steka i", "toTaste": true, "group": "Lins- och tomatsås", "cat": "skafferi" },
+      { "name": "crème fraiche", "amount": 1000, "unit": "ml", "group": "Ostsås", "cat": "mejeri" },
+      { "name": "riven ost", "amount": 160, "unit": "g", "group": "Ostsås", "cat": "mejeri" },
+      { "name": "lasagneplattor", "amount": 1000, "unit": "g", "group": "Montering", "cat": "skafferi" },
+      { "name": "riven ost", "amount": 100, "unit": "g", "group": "Montering", "cat": "mejeri" }
+    ],
+    "steps": [
+      "Hacka löken fint. Värm olja i en stor kastrull och stek löken tills den är blank.",
+      "Skölj linserna i kallt vatten. Lägg dem i kastrullen och slå på krossade tomater och vatten. Riv morötterna och lägg i. Tillsätt buljongtärning och tomatpuré. Koka under lock ca 10 minuter på medelsvag värme, rör om då och då.",
+      "Sätt ugnen på 225 grader.",
+      "Späd såsen med mer vatten om det behövs, den ska vara tjock men inte rinnig. Pressa i vitlöken och smaka av med salt, peppar och örterna.",
+      "Ostsås: värm crème fraiche i en kastrull och blanda i den rivna osten. Låt osten smälta, såsen ska inte koka. Salta och peppra.",
+      "Smörj en ugnsform. Lägg tomatsås i botten och varva med lasagneplattor, tomatsås och ostsås tills plattorna är slut. Avsluta med ostsås och strö ost överst.",
+      "Grädda mitt i ugnen ca 20 minuter, håll koll så lasagnen inte bränns.",
+      "Servera med en sallad."
+    ]
+  },
+  {
+    "id": "broccolisoppa",
+    "title": "Broccolisoppa",
+    "portions": 6,
+    "source": "https://www.allrecipes.com/recipe/13313/best-cream-of-broccoli-soup/",
+    "ingredients": [
+      { "name": "smör", "amount": 55, "unit": "g", "cat": "mejeri" },
+      { "name": "gul lök", "amount": 110, "unit": "g", "count": 1, "countUnit": "st", "cat": "grönt" },
+      { "name": "stjälkselleri", "amount": 40, "unit": "g", "count": 1, "countUnit": "stjälkar", "cat": "grönt" },
+      { "name": "kycklingbuljong", "amount": 720, "unit": "ml", "cat": "skafferi" },
+      { "name": "broccoli", "amount": 700, "unit": "g", "cat": "grönt" },
+      { "name": "vetemjöl", "amount": 25, "unit": "g", "cat": "skafferi" },
+      { "name": "mjölk", "amount": 480, "unit": "ml", "cat": "mejeri" },
+      { "name": "svartpeppar", "toTaste": true, "cat": "skafferi" }
+    ],
+    "steps": [
+      "Smält ungefär en tredjedel av smöret i en kastrull. Fräs lök och selleri tills de mjuknat.",
+      "Tillsätt broccoli och buljong. Låt sjuda under lock i 10 minuter.",
+      "Mixa soppan slät med stavmixer, eller i mixer i omgångar.",
+      "Smält resten av smöret i en liten kastrull. Rör i mjölet och späd med mjölken. Rör tills det tjocknar och bubblar, blanda sedan ner i soppan.",
+      "Smaka av med svartpeppar."
+    ]
+  },
+  {
+    "id": "loomisar",
+    "title": "Karls loomisar",
+    "portions": 2,
+    "source": "",
+    "ingredients": [
+      { "name": "halloumi", "amount": 200, "unit": "g", "count": 1, "countUnit": "pkt", "cat": "mejeri" },
+      { "name": "rödpesto", "amount": 95, "unit": "g", "count": 0.5, "countUnit": "burk", "cat": "skafferi" },
+      { "name": "svarta oliver (urkärnade)", "amount": 150, "unit": "g", "count": 1, "countUnit": "burk", "cat": "skafferi" },
+      { "name": "tomat", "amount": 720, "unit": "g", "count": 6, "countUnit": "st", "cat": "grönt" },
+      { "name": "rödlök", "amount": 100, "unit": "g", "count": 1, "countUnit": "st", "cat": "grönt" },
+      { "name": "vitlök", "toTaste": true, "cat": "grönt" }
+    ],
+    "steps": []
+  }
+]

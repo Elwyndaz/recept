@@ -3,7 +3,7 @@
 Ny sajt på orgutveckling.se/recept (eget repo `Elwyndaz/recept`, GH Pages, samma mönster som /ai). Egen visuell identitet (inte kopia av orgutveckling), mobilanpassad för butiksbruk, noindex.
 
 ## Funktion
-- Gemensamt receptbibliotek: statiskt innehåll (`recipes.json`), fler recept läggs till via repo-redigering. Källa: OneNote-export "Dom vi brukar laga" (`recept 2.mht`, ~60 recept).
+- Receptbibliotek och inköpslista är UNIKA per användare (i D1-state). starter.json är bara fröet nya konton börjar med. Recept läggs till/redigeras i UI:t. Källa: OneNote-export "Dom vi brukar laga" (`recept 2.mht`, ~60 recept).
 - Användare: användarnamn + PIN (inga mejl). Eget receptval + egen inköpslista per användare, synkas mellan enheter.
 - Alla ingredienser kanoniskt i g/ml så mängder summeras över recept. Smart visning: "330 g gul lök (~3 st)", smaksättare utan mängd. Portionsskalning linjärt.
 - Inköpslista: avbockning i butik (synkad), grupperad per varukategori (grönt/mejeri/kött/skafferi/fryst/övrigt), visar bidragande recept per rad, manuella extraposter.
