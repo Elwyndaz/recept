@@ -304,7 +304,7 @@ if (typeof document !== 'undefined') (async function () {
       ? '<ol class="steps">' + r.steps.map(s => `<li>${esc(s)}</li>`).join('') + '</ol>'
       : '<p class="empty">Inga steg nedskrivna.</p>';
     const nutr = nutritionPerPortion(r, nutrients);
-    const nutrLine = `<p class="hint">${fmtNum(nutr.kcal)} kcal · ${fmtNum(nutr.protein)} g protein · ${fmtNum(nutr.carbs)} g kolhydrater · ${fmtNum(nutr.fat)} g fett per portion (källa: Livsmedelsverket)${nutr.missing.length ? ' · ofullständigt, ' + nutr.missing.length + ' ingrediens' + (nutr.missing.length > 1 ? 'er' : '') + ' saknar data' : ''}</p>`;
+    const nutrLine = `<p class="hint">Per portion: ${fmtNum(nutr.kcal)} kcal · ${fmtNum(nutr.protein)} g protein · ${fmtNum(nutr.carbs)} g kolhydrater · ${fmtNum(nutr.fat)} g fett${nutr.missing.length ? ' · ofullständigt, ' + nutr.missing.length + ' ingrediens' + (nutr.missing.length > 1 ? 'er' : '') + ' saknar data' : ''}</p>`;
     return `<div class="view-head"><h1>${esc(r.title)}</h1><a class="btn btn-ghost" href="#/redigera/${esc(r.id)}">Redigera</a></div>
       <p class="hint">${esc(COURSE_LABELS[r.course])}</p>
       <div class="portion-bar">
