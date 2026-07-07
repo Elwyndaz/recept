@@ -321,7 +321,8 @@ if (typeof document !== 'undefined') (async function () {
   }
 
   function listAsText() {
-    const items = aggregate(state.recipes, state.selections);
+    const checked = new Set(state.checked);
+    const items = aggregate(state.recipes, state.selections).filter(it => !checked.has(it.key));
     const byCat = {};
     for (const it of items) (byCat[it.cat] = byCat[it.cat] || []).push(it);
     const lines = [];
@@ -330,9 +331,10 @@ if (typeof document !== 'undefined') (async function () {
       lines.push(CAT_LABELS[cat].toUpperCase());
       for (const it of byCat[cat].sort((a, b) => a.name.localeCompare(b.name, 'sv'))) lines.push('- ' + it.name + ': ' + fmtItem(it));
     }
-    if (state.extras.length) {
+    const extras = state.extras.filter(ex => !checked.has('extra:' + ex.id));
+    if (extras.length) {
       lines.push('EGNA RADER');
-      for (const ex of state.extras) lines.push('- ' + ex.text);
+      for (const ex of extras) lines.push('- ' + ex.text);
     }
     return lines.join('\n');
   }
