@@ -155,6 +155,16 @@ function makeBackup(state) {
   return { app: 'grammat', version: 1, exportedAt: new Date().toISOString(), state: normalizeState(state) };
 }
 
+// Allas recept: plockar bort recept som redan finns i startpaketet, taggar kvarvarande
+// med ägarnamn ENDAST när samma id förekommer hos fler än en ägare (disambiguering).
+function dedupeAllas(allasList, starterIds) {
+  const starterSet = new Set(starterIds);
+  const others = allasList.filter(r => !starterSet.has(r.id));
+  const counts = {};
+  for (const r of others) counts[r.id] = (counts[r.id] || 0) + 1;
+  return others.map(r => ({ ...r, _ownerLabel: counts[r.id] > 1 ? r.owner : null }));
+}
+
 // Tolkar och normaliserar JSON som en AI-modell producerat med importprompten.
 function parseImport(text, takenIds) {
   let t = String(text).trim().replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/, '');
@@ -218,7 +228,7 @@ Regler:
 Recept:
 `;
 
-if (typeof module !== 'undefined') { module.exports = { CATS, COURSES, COURSE_LABELS, aggregate, fmtNum, fmtItem, fmtIngredient, spiceHint, nutritionPerPortion, keyOf, slugify, safeUrl, normalizeState, makeBackup, parseImport }; }
+if (typeof module !== 'undefined') { module.exports = { CATS, COURSES, COURSE_LABELS, aggregate, fmtNum, fmtItem, fmtIngredient, spiceHint, nutritionPerPortion, keyOf, slugify, safeUrl, normalizeState, makeBackup, parseImport, dedupeAllas }; }
 
 // ---------- app ----------
 if (typeof document !== 'undefined') (async function () {
@@ -232,8 +242,8 @@ if (typeof document !== 'undefined') (async function () {
   let nutrients = {};
   try { starter = await (await fetch('starter.json')).json(); } catch (e) { /* offline utan cache */ }
   try { nutrients = await (await fetch('nutrients.json')).json(); } catch (e) { /* offline utan cache */ }
-  if (!state) state = { recipes: structuredClone(starter), selections: [], extras: [], checked: [] };
-  try { state = normalizeState(state); } catch (e) { state = { recipes: structuredClone(starter), selections: [], extras: [], checked: [] }; }
+  if (!state) state = { recipes: [], selections: [], extras: [], checked: [] };
+  try { state = normalizeState(state); } catch (e) { state = { recipes: [], selections: [], extras: [], checked: [] }; }
 
   async function api(path, opts = {}) {
     const res = await fetch(API + path, {
@@ -276,6 +286,14 @@ if (typeof document !== 'undefined') (async function () {
   function selFor(id) { return state.selections.find(s => s.id === id); }
   const previewPortions = {}; // portionsvisning på receptsidan innan receptet lagts i listan
 
+  let allasList = null; // null = ej hämtad än
+  let allasLoading = false;
+  function loadAllas() {
+    if (!auth || allasList !== null || allasLoading) return;
+    allasLoading = true;
+    api('/allas-recept').then(list => { allasList = list; render(); }).catch(() => {}).finally(() => { allasLoading = false; });
+  }
+
   function recipeCard(r) {
     const sel = selFor(r.id);
     const nutr = nutritionPerPortion(r, nutrients);
@@ -299,6 +317,46 @@ if (typeof document !== 'undefined') (async function () {
       <div class="cards">${byCourse[c].map(recipeCard).join('')}</div>`).join('');
     return `<div class="view-head"><h1>Mina recept</h1><span><a class="btn btn-ghost" href="#/nytt">+ Nytt recept</a> <a class="btn btn-ghost" href="#/importera">Klistra in från AI</a></span></div>
       ${state.recipes.length ? sections : '<p class="empty">Inga recept än. Lägg till ditt första med "Nytt recept".</p>'}`;
+  }
+
+  function viewAllasRecept() {
+    const myIds = new Set(state.recipes.map(r => r.id));
+
+    function card(r) {
+      const mine = myIds.has(r.id);
+      const nutr = nutritionPerPortion(r, nutrients);
+      const title = mine ? `<a class="card-title" href="#/recept/${esc(r.id)}">${esc(r.title)}</a>` : `<span class="card-title">${esc(r.title)}</span>`;
+      return `<article class="card">
+        ${title}
+        <div class="card-meta">bas ${r.portions} port · ${r.ingredients.length} ingredienser${nutr.kcal ? ` · ${fmtNum(nutr.kcal)} kcal/port` : ''}${r._ownerLabel ? ' · ' + esc(r._ownerLabel) : ''}</div>
+        <div class="card-row">
+          ${mine ? '<span class="hint">Redan tillagd</span>' : `<button class="btn" data-add-allas="${esc(r.id)}">Lägg till i mina recept</button>`}
+        </div>
+      </article>`;
+    }
+
+    function sections(list) {
+      const byCourse = {};
+      for (const r of list) (byCourse[r.course] = byCourse[r.course] || []).push(r);
+      return COURSES.filter(c => byCourse[c]).map(c => `
+        <h2>${esc(COURSE_LABELS[c])}</h2>
+        <div class="cards">${byCourse[c].map(card).join('')}</div>`).join('');
+    }
+
+    let othersHtml;
+    if (!auth) {
+      othersHtml = '<p class="hint">Logga in för att se recept andra lagt till.</p>';
+    } else if (allasList === null) {
+      loadAllas();
+      othersHtml = '<p class="hint">Laddar recept från andra …</p>';
+    } else {
+      const withLabels = dedupeAllas(allasList, starter.map(r => r.id));
+      othersHtml = withLabels.length ? sections(withLabels) : '';
+    }
+
+    return `<div class="view-head"><h1>Allas recept</h1></div>
+      ${sections(starter)}
+      ${othersHtml}`;
   }
 
   function viewRecipe(id) {
@@ -482,7 +540,7 @@ if (typeof document !== 'undefined') (async function () {
     const h = location.hash || '#/';
     document.querySelectorAll('.nav a').forEach(a => {
       const m = a.dataset.match;
-      const active = m === '#/' ? !h.startsWith('#/lista') && !h.startsWith('#/konto') : h.startsWith(m);
+      const active = m === '#/' ? !h.startsWith('#/lista') && !h.startsWith('#/konto') && !h.startsWith('#/allas') : h.startsWith(m);
       a.classList.toggle('active', active);
     });
   }
@@ -497,6 +555,7 @@ if (typeof document !== 'undefined') (async function () {
     else if (h === '#/importera') html = viewImport();
     else if (h === '#/lista') html = viewList();
     else if (h === '#/konto') html = viewAccount();
+    else if (h === '#/allas') html = viewAllasRecept();
     else html = viewCatalog();
     $('#view').innerHTML = html;
     renderNav();
@@ -543,6 +602,16 @@ if (typeof document !== 'undefined') (async function () {
       copy.title = r.title + ' (kopia)';
       state.recipes.push(copy);
       location.hash = '#/redigera/' + encodeURIComponent(copy.id);
+      save();
+    });
+    view.querySelectorAll('[data-add-allas]').forEach(b => b.onclick = () => {
+      const id = b.dataset.addAllas;
+      const r = starter.find(x => x.id === id) || (allasList || []).find(x => x.id === id);
+      if (!r) return;
+      const copy = JSON.parse(JSON.stringify(r));
+      delete copy.owner;
+      if (state.recipes.some(x => x.id === copy.id)) copy.id = slugify(copy.title, state.recipes.map(x => x.id));
+      state.recipes.push(copy);
       save();
     });
     view.querySelectorAll('[data-delete]').forEach(b => b.onclick = () => {
@@ -651,6 +720,7 @@ if (typeof document !== 'undefined') (async function () {
           const data = await api('/' + mode, { method: 'POST', body: JSON.stringify({ name: $('#authName').value, pin: $('#authPin').value }) });
           auth = { name: data.name, token: data.token };
           localStorage.setItem('auth', JSON.stringify(auth));
+          allasList = null;
           await pullState();
           location.hash = '#/';
           render();
@@ -664,6 +734,7 @@ if (typeof document !== 'undefined') (async function () {
     if (logout) logout.onclick = () => {
       auth = null;
       localStorage.removeItem('auth');
+      allasList = null;
       render();
     };
 

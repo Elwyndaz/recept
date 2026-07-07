@@ -1,7 +1,7 @@
 // ponytail: minsta möjliga check av summering/skalning - körs med: node test.js
 const assert = require('assert');
 const fs = require('fs');
-const { aggregate, fmtNum, fmtItem, fmtIngredient, spiceHint, parseImport, normalizeState, makeBackup, safeUrl, nutritionPerPortion, COURSES } = require('./app.js');
+const { aggregate, fmtNum, fmtItem, fmtIngredient, spiceHint, parseImport, normalizeState, makeBackup, safeUrl, nutritionPerPortion, COURSES, dedupeAllas } = require('./app.js');
 
 const recipes = JSON.parse(fs.readFileSync(__dirname + '/starter.json', 'utf8'));
 
@@ -86,5 +86,18 @@ assert.strictEqual(spiceHint(5, 'g', 'grönt'), '', 'bara skafferi');
 assert.strictEqual(spiceHint(5, 'ml', 'skafferi'), '', 'bara g, redan volym i ml');
 assert.strictEqual(fmtIngredient({ amount: 3, unit: 'g', cat: 'skafferi' }, 1), '3 g (~3 krm)');
 assert.strictEqual(fmtIngredient({ amount: 220, unit: 'g', count: 2, countUnit: 'st', cat: 'grönt' }, 1), '220 g (~2 st)', 'count vinner över spiceHint');
+
+// 10. Allas recept: startpaket-id:n filtreras bort, ägarnamn bara vid krock mellan flera ägare
+const allasList = [
+  { id: 'starter-1', title: 'Redan i startpaketet', owner: 'julia' },
+  { id: 'unik', title: 'Bara julias', owner: 'julia' },
+  { id: 'kollision', title: 'Kollision A', owner: 'julia' },
+  { id: 'kollision', title: 'Kollision B', owner: 'hans' },
+];
+const others = dedupeAllas(allasList, ['starter-1']);
+assert.strictEqual(others.length, 3, 'startpaket-id filtreras bort');
+assert.strictEqual(others.find(r => r.id === 'unik')._ownerLabel, null, 'ingen ägaretikett utan krock');
+assert.strictEqual(others.find(r => r.owner === 'julia' && r.id === 'kollision')._ownerLabel, 'julia', 'ägaretikett vid krock');
+assert.strictEqual(others.find(r => r.owner === 'hans')._ownerLabel, 'hans', 'ägaretikett vid krock');
 
 console.log('Alla test OK');

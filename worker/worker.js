@@ -3,6 +3,7 @@
 // POST /login    {name,pin} -> {token,name}
 // GET  /state  (Bearer token) -> {state}
 // PUT  /state  (Bearer token) <- hela state-blobben {recipes,selections,extras,checked}
+// GET  /allas-recept (Bearer token) -> [{...recipe, owner}, ...] från alla konton
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
@@ -50,6 +51,21 @@ export default {
         const [salt, hash] = u.pin_hash.split(':');
         if (await sha256hex(salt + pin) !== hash) return json({ error: 'Fel namn eller PIN.' }, 401);
         return json({ token: u.token, name });
+      }
+
+      if (path === '/allas-recept' && req.method === 'GET') {
+        const u = await userFromToken(req, env);
+        if (!u) return json({ error: 'Inte inloggad.' }, 401);
+        const { results } = await env.DB.prepare('SELECT name, state FROM users').all();
+        const out = [];
+        for (const row of results) {
+          if (!row.state) continue;
+          let s;
+          try { s = JSON.parse(row.state); } catch (e) { continue; }
+          if (!s || !Array.isArray(s.recipes)) continue;
+          for (const r of s.recipes) out.push({ ...r, owner: row.name });
+        }
+        return json(out);
       }
 
       if (path === '/state') {
