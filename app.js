@@ -47,10 +47,20 @@ function fmtNum(n) {
 
 function fmtCount(n) { return fmtNum(Math.round(n * 2) / 2); }
 
+// ponytail: kryddmått/tsk/msk-gissning för småmängder skafferivaror man inte vill väga upp.
+// Antar densitet ~1 g/ml (stämmer ungefär för salt/kryddpulver, inte exakt för flingiga örter) - ren display, ingen datamigrering.
+function spiceHint(amount, unit, cat) {
+  if (unit !== 'g' || cat !== 'skafferi' || !(amount > 0) || amount > 30) return '';
+  if (amount < 4) return fmtCount(amount) + ' krm';
+  if (amount < 12.5) return fmtCount(amount / 5) + ' tsk';
+  return fmtCount(amount / 15) + ' msk';
+}
+
 function fmtItem(it) {
   if (it.amount > 0) {
     let s = fmtNum(it.amount) + ' ' + it.unit;
     if (it.count > 0) s += ' (~' + fmtCount(it.count) + ' ' + (it.countUnit || 'st') + ')';
+    else { const hint = spiceHint(it.amount, it.unit, it.cat); if (hint) s += ' (~' + hint + ')'; }
     if (it.toTaste) s += ' + efter smak';
     return s;
   }
@@ -59,8 +69,10 @@ function fmtItem(it) {
 
 function fmtIngredient(ing, f) {
   if (ing.amount == null) return 'efter smak';
-  let s = fmtNum(ing.amount * f) + ' ' + (ing.unit || 'g');
+  const amount = ing.amount * f;
+  let s = fmtNum(amount) + ' ' + (ing.unit || 'g');
   if (ing.count) s += ' (~' + fmtCount(ing.count * f) + ' ' + (ing.countUnit || 'st') + ')';
+  else { const hint = spiceHint(amount, ing.unit, ing.cat); if (hint) s += ' (~' + hint + ')'; }
   return s;
 }
 
@@ -206,7 +218,7 @@ Regler:
 Recept:
 `;
 
-if (typeof module !== 'undefined') { module.exports = { CATS, COURSES, COURSE_LABELS, aggregate, fmtNum, fmtItem, fmtIngredient, nutritionPerPortion, keyOf, slugify, safeUrl, normalizeState, makeBackup, parseImport }; }
+if (typeof module !== 'undefined') { module.exports = { CATS, COURSES, COURSE_LABELS, aggregate, fmtNum, fmtItem, fmtIngredient, spiceHint, nutritionPerPortion, keyOf, slugify, safeUrl, normalizeState, makeBackup, parseImport }; }
 
 // ---------- app ----------
 if (typeof document !== 'undefined') (async function () {
@@ -317,7 +329,7 @@ if (typeof document !== 'undefined') (async function () {
       <h2>Gör så här</h2>
       ${steps}
       ${r.source ? `<p class="source"><a href="${esc(r.source)}" rel="noopener">Källa</a></p>` : ''}
-      <p><button class="btn btn-danger" data-delete="${esc(id)}">Ta bort receptet</button></p>`;
+      <p class="action-row"><button class="btn btn-ghost" data-duplicate="${esc(id)}">Kopiera receptet</button> <button class="btn btn-danger" data-delete="${esc(id)}">Ta bort receptet</button></p>`;
   }
 
   function listAsText() {
@@ -384,7 +396,7 @@ if (typeof document !== 'undefined') (async function () {
         <input type="text" id="extraText" placeholder="Egen rad, t.ex. mjölk eller toapapper" maxlength="80" required>
         <button class="btn" type="submit">Lägg till</button>
       </form>
-      ${total > 0 ? '<p><button class="btn btn-ghost" id="copyList" type="button">Kopiera listan</button> <button class="btn btn-danger" id="clearList">Töm listan</button></p>' : ''}`;
+      ${total > 0 ? '<p class="action-row"><button class="btn btn-ghost" id="copyList" type="button">Kopiera listan</button> <button class="btn btn-danger" id="clearList">Töm listan</button></p>' : ''}`;
   }
 
   function viewEditor(id) {
@@ -523,6 +535,15 @@ if (typeof document !== 'undefined') (async function () {
         previewPortions[r.id] = Math.max(1, (previewPortions[r.id] || r.portions) + Number(b.dataset.rstep));
         render();
       }
+    });
+    view.querySelectorAll('[data-duplicate]').forEach(b => b.onclick = () => {
+      const r = state.recipes.find(x => x.id === b.dataset.duplicate);
+      const copy = JSON.parse(JSON.stringify(r));
+      copy.id = slugify(r.title + ' kopia', state.recipes.map(x => x.id));
+      copy.title = r.title + ' (kopia)';
+      state.recipes.push(copy);
+      location.hash = '#/redigera/' + encodeURIComponent(copy.id);
+      save();
     });
     view.querySelectorAll('[data-delete]').forEach(b => b.onclick = () => {
       const r = state.recipes.find(x => x.id === b.dataset.delete);

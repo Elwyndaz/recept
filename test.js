@@ -1,7 +1,7 @@
 // ponytail: minsta möjliga check av summering/skalning - körs med: node test.js
 const assert = require('assert');
 const fs = require('fs');
-const { aggregate, fmtNum, fmtItem, parseImport, normalizeState, makeBackup, safeUrl, nutritionPerPortion, COURSES } = require('./app.js');
+const { aggregate, fmtNum, fmtItem, fmtIngredient, spiceHint, parseImport, normalizeState, makeBackup, safeUrl, nutritionPerPortion, COURSES } = require('./app.js');
 
 const recipes = JSON.parse(fs.readFileSync(__dirname + '/starter.json', 'utf8'));
 
@@ -76,5 +76,15 @@ const testRecipe = { portions: 2, ingredients: [
 const nutr = nutritionPerPortion(testRecipe, testNutrients);
 assert.strictEqual(nutr.kcal, 40, 'lök 200 g à 40 kcal/100g delat på 2 portioner = 40 kcal/portion');
 assert.deepStrictEqual(nutr.missing, ['okänd ingrediens'], 'okänd ingrediens flaggas, efter smak räknas inte som saknad');
+
+// 9. spiceHint: krm/tsk/msk-gissning för ovägda kryddor, bara för skafferi under 30 g utan count
+assert.strictEqual(spiceHint(2, 'g', 'skafferi'), '2 krm');
+assert.strictEqual(spiceHint(10, 'g', 'skafferi'), '2 tsk');
+assert.strictEqual(spiceHint(30, 'g', 'skafferi'), '2 msk');
+assert.strictEqual(spiceHint(50, 'g', 'skafferi'), '', 'för stor mängd, ingen gissning');
+assert.strictEqual(spiceHint(5, 'g', 'grönt'), '', 'bara skafferi');
+assert.strictEqual(spiceHint(5, 'ml', 'skafferi'), '', 'bara g, redan volym i ml');
+assert.strictEqual(fmtIngredient({ amount: 3, unit: 'g', cat: 'skafferi' }, 1), '3 g (~3 krm)');
+assert.strictEqual(fmtIngredient({ amount: 220, unit: 'g', count: 2, countUnit: 'st', cat: 'grönt' }, 1), '220 g (~2 st)', 'count vinner över spiceHint');
 
 console.log('Alla test OK');

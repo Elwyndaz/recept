@@ -459,5 +459,137 @@
       "Vispa ihop mascarpone, grädde, crème fraiche, sambal oelek, mango chutney och buljongtärningar, värm blandningen. Skär paprikan i mindre bitar och blanda ner i såsen. Låt sjuda kort, häll sedan över köttet.",
       "Grädda mitt i ugnen på 200 grader i ca 45 minuter. Klart att servera!"
     ]
+  },
+  {
+    "id": "chilirakor",
+    "title": "Chiliräkor med avocadosalsa",
+    "portions": 4,
+    "course": "forratt",
+    "source": "",
+    "ingredients": [
+      { "name": "räkor (avrunna)", "amount": 500, "unit": "g", "group": "Räkor", "cat": "kött" },
+      { "name": "chilisås (heinz)", "amount": 50, "unit": "ml", "group": "Räkor", "cat": "skafferi" },
+      { "name": "olivolja", "amount": 50, "unit": "ml", "group": "Räkor", "cat": "skafferi" },
+      { "name": "vitvinsvinäger", "amount": 30, "unit": "ml", "group": "Räkor", "cat": "skafferi" },
+      { "name": "vitlök", "amount": 15, "unit": "g", "count": 3, "countUnit": "klyftor", "group": "Räkor", "cat": "grönt" },
+      { "name": "salt", "amount": 2, "unit": "g", "group": "Räkor", "cat": "skafferi" },
+      { "name": "cayennepeppar", "amount": 2, "unit": "g", "group": "Räkor", "cat": "skafferi" },
+      { "name": "avokado", "amount": 540, "unit": "g", "count": 3, "countUnit": "st", "group": "Avocadosalsa", "cat": "grönt" },
+      { "name": "mango (gärna fryst, tärnad)", "amount": 350, "unit": "g", "count": 1, "countUnit": "st", "group": "Avocadosalsa", "cat": "fryst" },
+      { "name": "olivolja (salsa)", "amount": 30, "unit": "ml", "group": "Avocadosalsa", "cat": "skafferi" },
+      { "name": "grön chilifrukt", "amount": 15, "unit": "g", "count": 1, "countUnit": "st", "group": "Avocadosalsa", "cat": "grönt" },
+      { "name": "persilja", "amount": 4, "unit": "g", "count": 2, "countUnit": "kvistar", "group": "Avocadosalsa", "cat": "grönt" },
+      { "name": "limejuice", "amount": 30, "unit": "ml", "group": "Avocadosalsa", "cat": "skafferi" },
+      { "name": "salt", "toTaste": true, "group": "Avocadosalsa", "cat": "skafferi" },
+      { "name": "svartpeppar", "toTaste": true, "group": "Avocadosalsa", "cat": "skafferi" }
+    ],
+    "steps": [
+      "Blanda chilisås, olivolja, vitvinsvinäger, vitlök, salt och cayennepeppar till en marinad. Vänd ner räkorna och låt dra en stund i kylen.",
+      "Till avocadosalsan: tärna avokado och mango grovt. Finhacka chilifrukten (undvik hudkontakt, den svider) och strimla persiljan.",
+      "Blanda avokado, mango, chili och persilja med olivolja och limejuice. Smaka av med salt och peppar.",
+      "Servera räkorna tillsammans med avocadosalsan."
+    ]
+  },
+  {
+    "id": "arengs-bloody-mary",
+    "title": "Årengs Bloody Mary",
+    "portions": 2,
+    "course": "dryck",
+    "source": "https://emil.cafe.se/dags-att-borja-tanka-pa-brunch/",
+    "ingredients": [
+      { "name": "vodka", "amount": 120, "unit": "ml", "cat": "övrigt" },
+      { "name": "citronjuice", "amount": 30, "unit": "ml", "cat": "skafferi" },
+      { "name": "worcestersås", "amount": 10, "unit": "ml", "cat": "skafferi" },
+      { "name": "tabasco", "amount": 0.4, "unit": "ml", "count": 8, "countUnit": "droppar", "cat": "skafferi" },
+      { "name": "japansk soja", "amount": 30, "unit": "ml", "cat": "skafferi" },
+      { "name": "salt", "toTaste": true, "cat": "skafferi" },
+      { "name": "sellerisalt", "toTaste": true, "cat": "skafferi" },
+      { "name": "svartpeppar", "toTaste": true, "cat": "skafferi" },
+      { "name": "tomatjuice", "amount": 300, "unit": "ml", "cat": "skafferi" },
+      { "name": "flingsalt (till glaskanten)", "toTaste": true, "cat": "skafferi" },
+      { "name": "selleristjälkar (garnering)", "toTaste": true, "cat": "grönt" }
+    ],
+    "steps": [
+      "Rör alla ingredienser (utom flingsalt och selleristjälkar) på is i ungefär 15 sekunder, tills drinken är lagom utspädd men inte blaskig.",
+      "Dra en citronskiva runt glaskanten och doppa i en blandning av 1/3 sellerisalt och 2/3 flingsalt.",
+      "Häll upp drinken i glasen och garnera med selleristjälkar eller picklat."
+    ]
+  },
+  {
+    "id": "strawberry-daiquiri",
+    "title": "Strawberry Daiquiri",
+    "portions": 1,
+    "course": "dryck",
+    "source": "https://www.tasteline.com/recept/strawberry-daiquiri/",
+    "ingredients": [
+      { "name": "ljus rom", "amount": 40, "unit": "ml", "cat": "övrigt" },
+      { "name": "jordgubbar", "amount": 60, "unit": "g", "count": 5, "countUnit": "st", "cat": "grönt" },
+      { "name": "limejuice", "amount": 20, "unit": "ml", "cat": "skafferi" },
+      { "name": "sockerlag", "amount": 10, "unit": "ml", "cat": "skafferi" },
+      { "name": "is, krossad", "toTaste": true, "skipList": true, "cat": "övrigt" }
+    ],
+    "steps": [
+      "Mixa alla ingredienser i en blender tills konsistensen påminner om sorbet.",
+      "Häll upp i ett margaritaglas. Garnera med en jordgubbe."
+    ]
+  },
+  {
+    "id": "nubbesallad",
+    "title": "Nubbesallad",
+    "portions": 6,
+    "course": "sas",
+    "source": "",
+    "ingredients": [
+      { "name": "gräddfil", "amount": 75, "unit": "ml", "cat": "mejeri" },
+      { "name": "majonnäs", "amount": 150, "unit": "ml", "cat": "skafferi" },
+      { "name": "rökt kaviar (eller vanlig)", "amount": 60, "unit": "ml", "cat": "skafferi" },
+      { "name": "rödlök", "amount": 60, "unit": "g", "count": 1, "countUnit": "st", "cat": "grönt" },
+      { "name": "purjolök, finhackad", "amount": 50, "unit": "ml", "cat": "grönt" },
+      { "name": "dill, finhackad", "amount": 50, "unit": "ml", "cat": "grönt" },
+      { "name": "matjesfiléer", "amount": 220, "unit": "g", "count": 1, "countUnit": "burk", "cat": "kött" },
+      { "name": "potatis (kokt, kall)", "amount": 500, "unit": "g", "count": 5, "countUnit": "st", "cat": "grönt" },
+      { "name": "ägg, hårdkokta", "amount": 360, "unit": "g", "count": 6, "countUnit": "st", "cat": "mejeri" },
+      { "name": "persilja", "amount": 40, "unit": "g", "count": 1, "countUnit": "bunt", "cat": "grönt" }
+    ],
+    "steps": [
+      "Hacka rödlöken. Skär potatisen i små tärningar.",
+      "Skär matjesfiléerna i små bitar.",
+      "Hacka 4 av äggen (spara 2 hela till garnering).",
+      "Blanda gräddfil, majonnäs och kaviar.",
+      "Rör ner rödlök, purjolök och dill.",
+      "Blanda till sist i potatis och matjes.",
+      "Garnera med de 2 sparade äggen, klyftade, samt persilja. Salladen kan med fördel stå i kylen ett par timmar före servering."
+    ]
+  },
+  {
+    "id": "morots-och-ingefarssoppa",
+    "title": "Morots- och ingefärssoppa med jordnötshack",
+    "portions": 4,
+    "course": "huvudratt",
+    "source": "https://www.ica.se/recept/morots-och-ingefarssoppa-med-jordnotshack-715749/",
+    "ingredients": [
+      { "name": "minibaguetter", "amount": 200, "unit": "g", "count": 4, "countUnit": "st", "group": "Soppa", "cat": "skafferi" },
+      { "name": "gul lök", "amount": 110, "unit": "g", "count": 1, "countUnit": "st", "group": "Soppa", "cat": "grönt" },
+      { "name": "vitlök", "amount": 5, "unit": "g", "count": 1, "countUnit": "klyftor", "group": "Soppa", "cat": "grönt" },
+      { "name": "morot", "amount": 500, "unit": "g", "group": "Soppa", "cat": "grönt" },
+      { "name": "ingefära, riven", "amount": 6, "unit": "g", "group": "Soppa", "cat": "grönt" },
+      { "name": "olja", "amount": 5, "unit": "ml", "group": "Soppa", "cat": "skafferi" },
+      { "name": "hönsbuljong", "amount": 500, "unit": "ml", "group": "Soppa", "cat": "skafferi" },
+      { "name": "lime", "amount": 65, "unit": "g", "count": 1, "countUnit": "st", "group": "Soppa", "cat": "grönt" },
+      { "name": "kokosmjölk", "amount": 400, "unit": "ml", "group": "Soppa", "cat": "skafferi" },
+      { "name": "sambal oelek", "amount": 5, "unit": "ml", "group": "Soppa", "cat": "skafferi" },
+      { "name": "salt", "toTaste": true, "group": "Soppa", "cat": "skafferi" },
+      { "name": "svartpeppar", "toTaste": true, "group": "Soppa", "cat": "skafferi" },
+      { "name": "salta jordnötter", "amount": 55, "unit": "g", "group": "Jordnötshack", "cat": "skafferi" },
+      { "name": "koriander", "amount": 12, "unit": "g", "count": 0.5, "countUnit": "kruka", "group": "Jordnötshack", "cat": "grönt" }
+    ],
+    "steps": [
+      "Grädda brödet enligt anvisningen på förpackningen.",
+      "Skala och finhacka lök och vitlök. Skala och skär morötterna i mindre bitar. Skala och riv ingefäran.",
+      "Fräs lök, vitlök och morötter i oljan i en stor kastrull ca 5 minuter. Tillsätt buljongen, ingefäran och pressad limesaft. Koka upp och låt småkoka under lock ca 15 minuter tills morötterna är mjuka.",
+      "Jordnötshack: hacka och blanda jordnötter och koriander grovt.",
+      "Ta soppan från värmen. Mixa den slät med stavmixer eller matberedare. Tillsätt kokosmjölken och värm upp soppan. Smaka av med sambal oelek, salt och peppar.",
+      "Servera soppan med jordnötshack och bröd."
+    ]
   }
 ]
