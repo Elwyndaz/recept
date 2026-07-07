@@ -1,15 +1,15 @@
 {
   "avokado": {
-    "kcal": 160,
-    "protein": 2,
-    "carbs": 8.5,
-    "fat": 14.7
+    "kcal": 197,
+    "protein": 1.9,
+    "carbs": 1.7,
+    "fat": 19.6
   },
   "bandspagetti": {
-    "kcal": 355,
-    "protein": 12,
-    "carbs": 71,
-    "fat": 1.5
+    "kcal": 358,
+    "protein": 11.9,
+    "carbs": 71.5,
+    "fat": 1.3
   },
   "bbq-sås": {
     "kcal": 150,
@@ -18,16 +18,16 @@
     "fat": 0.5
   },
   "blandad sallad": {
-    "kcal": 15,
-    "protein": 1.4,
-    "carbs": 2.9,
-    "fat": 0.2
+    "kcal": 16,
+    "protein": 0.9,
+    "carbs": 2.4,
+    "fat": 0.1
   },
   "broccoli": {
-    "kcal": 34,
-    "protein": 2.8,
-    "carbs": 7,
-    "fat": 0.4
+    "kcal": 36,
+    "protein": 2.9,
+    "carbs": 3.5,
+    "fat": 0.6
   },
   "cayennepeppar": {
     "kcal": 318,
@@ -36,10 +36,10 @@
     "fat": 17
   },
   "champinjoner": {
-    "kcal": 22,
-    "protein": 3.1,
-    "carbs": 3.3,
-    "fat": 0.3
+    "kcal": 27,
+    "protein": 2.4,
+    "carbs": 2.7,
+    "fat": 0.2
   },
   "chilisås": {
     "kcal": 130,
@@ -48,16 +48,16 @@
     "fat": 0.2
   },
   "citron": {
-    "kcal": 29,
-    "protein": 1.1,
-    "carbs": 9.3,
-    "fat": 0.3
+    "kcal": 50,
+    "protein": 0.9,
+    "carbs": 7.6,
+    "fat": 0.7
   },
   "crème fraiche": {
-    "kcal": 300,
-    "protein": 2.5,
-    "carbs": 3,
-    "fat": 32
+    "kcal": 323,
+    "protein": 2.3,
+    "carbs": 3.3,
+    "fat": 34
   },
   "curry": {
     "kcal": 325,
@@ -66,10 +66,10 @@
     "fat": 14
   },
   "dill": {
-    "kcal": 43,
-    "protein": 3.5,
-    "carbs": 7,
-    "fat": 1.1
+    "kcal": 58,
+    "protein": 3.7,
+    "carbs": 7.4,
+    "fat": 0.8
   },
   "fiskfond": {
     "kcal": 10,
@@ -78,10 +78,10 @@
     "fat": 0.3
   },
   "fläskfilé": {
-    "kcal": 143,
-    "protein": 21.5,
+    "kcal": 107,
+    "protein": 20.6,
     "carbs": 0,
-    "fat": 6
+    "fat": 2.6
   },
   "fänkålsfrön": {
     "kcal": 345,
@@ -90,52 +90,52 @@
     "fat": 15
   },
   "färsk ingefära": {
-    "kcal": 80,
-    "protein": 1.8,
-    "carbs": 18,
+    "kcal": 63,
+    "protein": 2.2,
+    "carbs": 9,
     "fat": 0.8
   },
   "färsk salsiccia": {
-    "kcal": 280,
-    "protein": 14,
-    "carbs": 2,
-    "fat": 24
+    "kcal": 270,
+    "protein": 21.8,
+    "carbs": 4.7,
+    "fat": 18.3
   },
   "färskost": {
-    "kcal": 245,
-    "protein": 5.5,
-    "carbs": 4,
-    "fat": 23
+    "kcal": 343,
+    "protein": 10.2,
+    "carbs": 2.4,
+    "fat": 33
   },
   "färskpotatis": {
-    "kcal": 76,
-    "protein": 1.9,
-    "carbs": 16.7,
+    "kcal": 71,
+    "protein": 1.4,
+    "carbs": 14.8,
     "fat": 0.1
   },
   "grädde (kokbar)": {
-    "kcal": 180,
-    "protein": 2.3,
-    "carbs": 4,
+    "kcal": 162,
+    "protein": 3,
+    "carbs": 4.2,
     "fat": 15
   },
   "gräddfil": {
-    "kcal": 140,
-    "protein": 3,
+    "kcal": 128,
+    "protein": 2.5,
     "carbs": 4,
-    "fat": 12
+    "fat": 11.5
   },
   "grön paprika": {
-    "kcal": 20,
-    "protein": 0.9,
-    "carbs": 4.6,
-    "fat": 0.2
+    "kcal": 18,
+    "protein": 0.5,
+    "carbs": 3,
+    "fat": 0.1
   },
   "gröna oliver": {
-    "kcal": 145,
-    "protein": 1,
-    "carbs": 4,
-    "fat": 15
+    "kcal": 128,
+    "protein": 0.6,
+    "carbs": 1.1,
+    "fat": 13.1
   },
   "grönsaksbuljongtärning": {
     "kcal": 250,
@@ -144,57 +144,57 @@
     "fat": 8
   },
   "gul lök": {
-    "kcal": 40,
-    "protein": 1.1,
-    "carbs": 9.3,
+    "kcal": 39,
+    "protein": 1.2,
+    "carbs": 7.3,
     "fat": 0.1
   },
   "gul paprika": {
-    "kcal": 27,
-    "protein": 1,
-    "carbs": 6,
+    "kcal": 24,
+    "protein": 0.5,
+    "carbs": 4.3,
     "fat": 0.2
   },
   "gurka": {
-    "kcal": 12,
-    "protein": 0.7,
-    "carbs": 2.2,
-    "fat": 0.1
+    "kcal": 13,
+    "protein": 0.8,
+    "carbs": 2.3,
+    "fat": 0
   },
   "gurkmeja": {
-    "kcal": 312,
-    "protein": 9.7,
-    "carbs": 58,
-    "fat": 3.3
+    "kcal": 316,
+    "protein": 7.7,
+    "carbs": 49.2,
+    "fat": 5
   },
   "halloumi": {
-    "kcal": 320,
-    "protein": 22,
-    "carbs": 2,
-    "fat": 25
+    "kcal": 292,
+    "protein": 22.3,
+    "carbs": 1.9,
+    "fat": 21.9
   },
   "handskalade räkor": {
-    "kcal": 71,
-    "protein": 15,
-    "carbs": 1,
-    "fat": 0.8
+    "kcal": 77,
+    "protein": 17.6,
+    "carbs": 0,
+    "fat": 0.6
   },
   "hela tomater (burk)": {
-    "kcal": 18,
-    "protein": 0.9,
-    "carbs": 3.9,
+    "kcal": 22,
+    "protein": 0.8,
+    "carbs": 3.7,
     "fat": 0.2
   },
   "honung": {
-    "kcal": 304,
+    "kcal": 332,
     "protein": 0.3,
-    "carbs": 82,
+    "carbs": 81.5,
     "fat": 0
   },
   "honung (eller strösocker)": {
-    "kcal": 304,
+    "kcal": 332,
     "protein": 0.3,
-    "carbs": 82,
+    "carbs": 81.5,
     "fat": 0
   },
   "ingefära (malen)": {
@@ -204,16 +204,16 @@
     "fat": 4.2
   },
   "japansk soja": {
-    "kcal": 60,
-    "protein": 6,
-    "carbs": 6,
+    "kcal": 72,
+    "protein": 7.7,
+    "carbs": 10.1,
     "fat": 0
   },
   "jubileumskaka (runt rågbröd)": {
-    "kcal": 240,
-    "protein": 8,
-    "carbs": 48,
-    "fat": 2
+    "kcal": 264,
+    "protein": 7.3,
+    "carbs": 48.9,
+    "fat": 2.7
   },
   "kaftakrydda (eller 7 kryddor)": {
     "kcal": 350,
@@ -222,64 +222,64 @@
     "fat": 12
   },
   "kakao": {
-    "kcal": 228,
-    "protein": 19.6,
-    "carbs": 11,
-    "fat": 14
+    "kcal": 394,
+    "protein": 23.5,
+    "carbs": 10.6,
+    "fat": 21.5
   },
   "kidneybönor (avrunna)": {
-    "kcal": 127,
-    "protein": 8.7,
-    "carbs": 21,
-    "fat": 0.5
+    "kcal": 110,
+    "protein": 8.8,
+    "carbs": 13.4,
+    "fat": 0.7
   },
   "kinesisk soja": {
-    "kcal": 60,
-    "protein": 6,
-    "carbs": 6,
+    "kcal": 57,
+    "protein": 7.5,
+    "carbs": 6.6,
     "fat": 0
   },
   "koriander": {
-    "kcal": 23,
-    "protein": 2.1,
-    "carbs": 3.7,
-    "fat": 0.5
+    "kcal": 37,
+    "protein": 3.5,
+    "carbs": 1.9,
+    "fat": 0.7
   },
   "krossade tomater": {
-    "kcal": 32,
-    "protein": 1.6,
-    "carbs": 5.5,
-    "fat": 0.3
+    "kcal": 22,
+    "protein": 0.8,
+    "carbs": 3.7,
+    "fat": 0.2
   },
   "kräftstjärtar (konserv, inkl. rom)": {
-    "kcal": 90,
-    "protein": 18,
-    "carbs": 1,
-    "fat": 1.5
+    "kcal": 71,
+    "protein": 15.6,
+    "carbs": 0.8,
+    "fat": 0.4
   },
   "kyckling": {
-    "kcal": 120,
-    "protein": 20,
+    "kcal": 115,
+    "protein": 21.5,
     "carbs": 0,
-    "fat": 4.3
+    "fat": 3.1
   },
   "kycklingbuljong": {
     "kcal": 5,
-    "protein": 0.8,
-    "carbs": 0.4,
-    "fat": 0.2
+    "protein": 0.3,
+    "carbs": 0.2,
+    "fat": 0.3
   },
   "kycklingfilé": {
-    "kcal": 110,
-    "protein": 23,
+    "kcal": 104,
+    "protein": 23.1,
     "carbs": 0,
     "fat": 1.2
   },
   "köttfärs": {
-    "kcal": 220,
-    "protein": 18,
+    "kcal": 201,
+    "protein": 18.8,
     "carbs": 0,
-    "fat": 16
+    "fat": 14.1
   },
   "lagerblad": {
     "kcal": 313,
@@ -288,76 +288,76 @@
     "fat": 8.4
   },
   "lasagneplattor": {
-    "kcal": 350,
-    "protein": 12,
-    "carbs": 71,
-    "fat": 1.5
+    "kcal": 358,
+    "protein": 11.9,
+    "carbs": 71.5,
+    "fat": 1.3
   },
   "lime": {
-    "kcal": 30,
+    "kcal": 47,
     "protein": 0.7,
-    "carbs": 11,
+    "carbs": 10.3,
     "fat": 0.2
   },
   "lövbiff": {
-    "kcal": 160,
-    "protein": 20,
+    "kcal": 123,
+    "protein": 21.8,
     "carbs": 0,
-    "fat": 9
+    "fat": 3.8
   },
   "majs (fryst, tinad)": {
-    "kcal": 86,
+    "kcal": 81,
     "protein": 3.2,
-    "carbs": 19,
-    "fat": 1.2
+    "carbs": 10.1,
+    "fat": 1.9
   },
   "majsstärkelse": {
-    "kcal": 381,
-    "protein": 0.3,
-    "carbs": 91,
-    "fat": 0.1
+    "kcal": 362,
+    "protein": 0,
+    "carbs": 87.5,
+    "fat": 0.7
   },
   "malen spiskummin": {
-    "kcal": 375,
-    "protein": 17.8,
-    "carbs": 44,
-    "fat": 22
+    "kcal": 354,
+    "protein": 13.9,
+    "carbs": 22.6,
+    "fat": 16.6
   },
   "mango chutney": {
-    "kcal": 165,
-    "protein": 0.5,
-    "carbs": 40,
-    "fat": 0.2
+    "kcal": 110,
+    "protein": 0.6,
+    "carbs": 25.7,
+    "fat": 0.1
   },
   "mascarpone": {
-    "kcal": 355,
-    "protein": 4.8,
-    "carbs": 4.8,
+    "kcal": 352,
+    "protein": 4,
+    "carbs": 5.3,
     "fat": 35
   },
   "miniplommontomater": {
     "kcal": 18,
-    "protein": 0.9,
-    "carbs": 3.9,
-    "fat": 0.2
+    "protein": 0.8,
+    "carbs": 2.6,
+    "fat": 0.1
   },
   "mjölk": {
-    "kcal": 62,
-    "protein": 3.4,
-    "carbs": 4.7,
+    "kcal": 60,
+    "protein": 3.6,
+    "carbs": 4.6,
     "fat": 3
   },
   "morot": {
-    "kcal": 41,
-    "protein": 0.9,
-    "carbs": 9.6,
+    "kcal": 36,
+    "protein": 0.7,
+    "carbs": 6.6,
     "fat": 0.2
   },
   "nötfärs": {
-    "kcal": 200,
-    "protein": 19,
+    "kcal": 182,
+    "protein": 20.1,
     "carbs": 0,
-    "fat": 14
+    "fat": 11.3
   },
   "olivolja": {
     "kcal": 884,
@@ -378,39 +378,39 @@
     "fat": 100
   },
   "pak choi": {
-    "kcal": 13,
-    "protein": 1.5,
-    "carbs": 2.2,
+    "kcal": 19,
+    "protein": 1.4,
+    "carbs": 1.8,
     "fat": 0.2
   },
   "parmesanost": {
-    "kcal": 392,
-    "protein": 35.8,
-    "carbs": 3.2,
-    "fat": 26
+    "kcal": 428,
+    "protein": 31.1,
+    "carbs": 4.2,
+    "fat": 32.2
   },
   "pasta (till servering)": {
-    "kcal": 355,
-    "protein": 12,
-    "carbs": 71,
-    "fat": 1.5
+    "kcal": 358,
+    "protein": 11.9,
+    "carbs": 71.5,
+    "fat": 1.3
   },
   "persilja": {
-    "kcal": 36,
-    "protein": 3,
-    "carbs": 6,
-    "fat": 0.8
+    "kcal": 78,
+    "protein": 5.6,
+    "carbs": 9.4,
+    "fat": 1.1
   },
   "plommontomater": {
     "kcal": 18,
-    "protein": 0.9,
-    "carbs": 3.9,
-    "fat": 0.2
+    "protein": 0.8,
+    "carbs": 2.6,
+    "fat": 0.1
   },
   "purjolök": {
-    "kcal": 29,
-    "protein": 1.3,
-    "carbs": 6.4,
+    "kcal": 30,
+    "protein": 1.6,
+    "carbs": 4.1,
     "fat": 0.2
   },
   "ras el hanout (eller kanel och spiskummin)": {
@@ -420,58 +420,58 @@
     "fat": 12
   },
   "ris (gärna jasmin)": {
-    "kcal": 356,
-    "protein": 7,
-    "carbs": 79,
-    "fat": 0.6
-  },
-  "riven ost": {
-    "kcal": 350,
-    "protein": 25,
-    "carbs": 0.5,
-    "fat": 28
-  },
-  "rucolasallad": {
-    "kcal": 25,
-    "protein": 2.6,
-    "carbs": 2.1,
+    "kcal": 354,
+    "protein": 7.5,
+    "carbs": 78.2,
     "fat": 0.7
   },
-  "räkor (skalade)": {
-    "kcal": 71,
-    "protein": 15,
-    "carbs": 1,
-    "fat": 0.8
+  "riven ost": {
+    "kcal": 337,
+    "protein": 24.9,
+    "carbs": 1.4,
+    "fat": 26
   },
-  "röd chili": {
-    "kcal": 40,
-    "protein": 1.9,
-    "carbs": 8.8,
+  "rucolasallad": {
+    "kcal": 21,
+    "protein": 3.6,
+    "carbs": 0,
     "fat": 0.4
   },
+  "räkor (skalade)": {
+    "kcal": 77,
+    "protein": 17.6,
+    "carbs": 0,
+    "fat": 0.6
+  },
+  "röd chili": {
+    "kcal": 49,
+    "protein": 2.4,
+    "carbs": 5.9,
+    "fat": 0.7
+  },
   "röd paprika": {
-    "kcal": 31,
-    "protein": 1,
-    "carbs": 6.3,
-    "fat": 0.3
+    "kcal": 22,
+    "protein": 0.5,
+    "carbs": 4.1,
+    "fat": 0.2
   },
   "röda linser (torkade)": {
-    "kcal": 352,
-    "protein": 24,
-    "carbs": 60,
-    "fat": 1.5
+    "kcal": 339,
+    "protein": 24.4,
+    "carbs": 52.5,
+    "fat": 0.8
   },
   "rödlök": {
-    "kcal": 40,
-    "protein": 1.1,
-    "carbs": 9.3,
+    "kcal": 46,
+    "protein": 1.2,
+    "carbs": 9,
     "fat": 0.1
   },
   "rödpesto": {
-    "kcal": 350,
-    "protein": 4,
-    "carbs": 10,
-    "fat": 33
+    "kcal": 450,
+    "protein": 4.7,
+    "carbs": 18,
+    "fat": 38
   },
   "rökt paprikapulver": {
     "kcal": 289,
@@ -480,9 +480,9 @@
     "fat": 13
   },
   "rött vin (eller vatten)": {
-    "kcal": 85,
-    "protein": 0.1,
-    "carbs": 2.6,
+    "kcal": 79,
+    "protein": 0,
+    "carbs": 1,
     "fat": 0
   },
   "salladslök": {
@@ -516,9 +516,9 @@
     "fat": 49.7
   },
   "sherryvinäger": {
-    "kcal": 19,
-    "protein": 0,
-    "carbs": 0.4,
+    "kcal": 30,
+    "protein": 0.4,
+    "carbs": 7,
     "fat": 0
   },
   "silverlök": {
@@ -528,27 +528,27 @@
     "fat": 0.1
   },
   "sivri (turkisk paprika) eller grön paprika": {
-    "kcal": 20,
-    "protein": 0.9,
-    "carbs": 4.6,
-    "fat": 0.2
+    "kcal": 18,
+    "protein": 0.5,
+    "carbs": 3,
+    "fat": 0.1
   },
   "smör": {
-    "kcal": 717,
-    "protein": 0.9,
-    "carbs": 0.1,
-    "fat": 81
+    "kcal": 766,
+    "protein": 0.6,
+    "carbs": 0,
+    "fat": 86.3
   },
   "spagetti": {
-    "kcal": 355,
-    "protein": 12,
-    "carbs": 71,
-    "fat": 1.5
+    "kcal": 358,
+    "protein": 11.9,
+    "carbs": 71.5,
+    "fat": 1.3
   },
   "stjälkselleri": {
-    "kcal": 16,
-    "protein": 0.7,
-    "carbs": 3,
+    "kcal": 19,
+    "protein": 1,
+    "carbs": 2.3,
     "fat": 0.2
   },
   "sumak (eller citron)": {
@@ -558,16 +558,16 @@
     "fat": 5
   },
   "svarta bönor (kokta)": {
-    "kcal": 132,
-    "protein": 8.9,
-    "carbs": 23.7,
-    "fat": 0.5
+    "kcal": 111,
+    "protein": 8.1,
+    "carbs": 13.8,
+    "fat": 1
   },
   "svarta oliver (urkärnade)": {
-    "kcal": 115,
+    "kcal": 142,
     "protein": 0.8,
-    "carbs": 6,
-    "fat": 11
+    "carbs": 1.8,
+    "fat": 14.1
   },
   "svartpeppar": {
     "kcal": 251,
@@ -576,16 +576,16 @@
     "fat": 3.3
   },
   "sötpotatis": {
-    "kcal": 86,
+    "kcal": 71,
     "protein": 1.6,
-    "carbs": 20,
-    "fat": 0.1
+    "carbs": 12.9,
+    "fat": 0.4
   },
   "teriyakisås": {
-    "kcal": 89,
-    "protein": 3,
-    "carbs": 18,
-    "fat": 0
+    "kcal": 110,
+    "protein": 3.2,
+    "carbs": 22.2,
+    "fat": 0.8
   },
   "texmexkrydda": {
     "kcal": 300,
@@ -595,15 +595,15 @@
   },
   "tomat": {
     "kcal": 18,
-    "protein": 0.9,
-    "carbs": 3.9,
-    "fat": 0.2
+    "protein": 0.8,
+    "carbs": 2.6,
+    "fat": 0.1
   },
   "tomatpuré": {
-    "kcal": 82,
-    "protein": 4.3,
-    "carbs": 18.9,
-    "fat": 0.5
+    "kcal": 84,
+    "protein": 4.4,
+    "carbs": 13.5,
+    "fat": 0.2
   },
   "torkad oregano": {
     "kcal": 265,
@@ -624,9 +624,9 @@
     "fat": 5
   },
   "torrt vitt vin": {
-    "kcal": 82,
-    "protein": 0.1,
-    "carbs": 2.6,
+    "kcal": 70,
+    "protein": 0,
+    "carbs": 1,
     "fat": 0
   },
   "vatten": {
@@ -636,27 +636,27 @@
     "fat": 0
   },
   "vetemjöl": {
-    "kcal": 340,
-    "protein": 10,
-    "carbs": 71,
-    "fat": 1
+    "kcal": 352,
+    "protein": 8.5,
+    "carbs": 72.4,
+    "fat": 1.9
   },
   "vispgrädde": {
-    "kcal": 342,
+    "kcal": 374,
     "protein": 2.1,
-    "carbs": 3.3,
-    "fat": 36
+    "carbs": 3,
+    "fat": 40
   },
   "vitlök": {
-    "kcal": 149,
-    "protein": 6.4,
-    "carbs": 33,
-    "fat": 0.5
+    "kcal": 128,
+    "protein": 6.8,
+    "carbs": 21.9,
+    "fat": 0.2
   },
   "ägg": {
-    "kcal": 143,
-    "protein": 12.6,
-    "carbs": 0.7,
-    "fat": 9.9
+    "kcal": 136,
+    "protein": 12.1,
+    "carbs": 0,
+    "fat": 9.8
   }
 }
