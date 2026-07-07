@@ -69,6 +69,62 @@ function slugify(title, taken) {
   return id;
 }
 
+function safeUrl(value) {
+  const s = typeof value === 'string' ? value.trim() : '';
+  if (!s) return '';
+  try {
+    const u = new URL(s);
+    return u.protocol === 'http:' || u.protocol === 'https:' ? u.href : '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function normalizeState(raw) {
+  const s = raw && typeof raw === 'object' && raw.state && typeof raw.state === 'object' ? raw.state : raw;
+  if (!s || typeof s !== 'object') throw new Error('Backupen innehåller ingen giltig state.');
+  if (!Array.isArray(s.recipes)) throw new Error('Backupen saknar receptlista.');
+
+  const taken = [];
+  const recipes = s.recipes.map(r => {
+    if (!r || typeof r !== 'object') throw new Error('Backupen innehåller ett trasigt recept.');
+    const title = typeof r.title === 'string' && r.title.trim() ? r.title.trim() : '';
+    if (!title) throw new Error('Ett recept i backupen saknar namn.');
+    if (!Array.isArray(r.ingredients) || !r.ingredients.length) throw new Error('Receptet "' + title + '" saknar ingredienser.');
+    const idBase = typeof r.id === 'string' && r.id.trim() ? slugify(r.id, []) : slugify(title, []);
+    const id = taken.includes(idBase) ? slugify(idBase, taken) : idBase;
+    taken.push(id);
+    return {
+      id,
+      title,
+      portions: typeof r.portions === 'number' && r.portions >= 1 ? Math.round(r.portions) : 4,
+      source: safeUrl(r.source),
+      ingredients: r.ingredients.map(x => {
+        if (!x || typeof x !== 'object' || typeof x.name !== 'string' || !x.name.trim()) throw new Error('En ingrediens i "' + title + '" saknar namn.');
+        const ing = { name: x.name.trim(), cat: CATS.includes(x.cat) ? x.cat : 'övrigt' };
+        if (typeof x.amount === 'number' && x.amount > 0) { ing.amount = x.amount; ing.unit = x.unit === 'ml' ? 'ml' : 'g'; }
+        else ing.toTaste = true;
+        if (typeof x.count === 'number' && x.count > 0) { ing.count = x.count; ing.countUnit = typeof x.countUnit === 'string' && x.countUnit.trim() ? x.countUnit.trim() : 'st'; }
+        if (x.skipList === true) ing.skipList = true;
+        if (typeof x.group === 'string' && x.group.trim()) ing.group = x.group.trim();
+        return ing;
+      }),
+      steps: Array.isArray(r.steps) ? r.steps.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim()) : [],
+    };
+  });
+
+  return {
+    recipes,
+    selections: Array.isArray(s.selections) ? s.selections.map(x => ({ id: String(x.id || ''), portions: Math.max(1, Math.round(Number(x.portions) || 1)) })).filter(x => recipes.some(r => r.id === x.id)) : [],
+    extras: Array.isArray(s.extras) ? s.extras.map(x => ({ id: x.id != null ? x.id : Date.now(), text: String(x.text || '').trim().slice(0, 80) })).filter(x => x.text) : [],
+    checked: Array.isArray(s.checked) ? s.checked.map(String) : [],
+  };
+}
+
+function makeBackup(state) {
+  return { app: 'grammat', version: 1, exportedAt: new Date().toISOString(), state: normalizeState(state) };
+}
+
 // Tolkar och normaliserar JSON som en AI-modell producerat med importprompten.
 function parseImport(text, takenIds) {
   let t = String(text).trim().replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/, '');
@@ -92,7 +148,7 @@ function parseImport(text, takenIds) {
     id: slugify(d.title, takenIds),
     title: d.title.trim(),
     portions: typeof d.portions === 'number' && d.portions >= 1 ? Math.round(d.portions) : 4,
-    source: typeof d.source === 'string' ? d.source.trim() : '',
+    source: safeUrl(d.source),
     ingredients,
     steps: Array.isArray(d.steps) ? d.steps.filter(s => typeof s === 'string' && s.trim()).map(s => s.trim()) : [],
   };
@@ -129,7 +185,7 @@ Regler:
 Recept:
 `;
 
-if (typeof module !== 'undefined') { module.exports = { CATS, aggregate, fmtNum, fmtItem, fmtIngredient, keyOf, slugify, parseImport }; }
+if (typeof module !== 'undefined') { module.exports = { CATS, aggregate, fmtNum, fmtItem, fmtIngredient, keyOf, slugify, safeUrl, normalizeState, makeBackup, parseImport }; }
 
 // ---------- app ----------
 if (typeof document !== 'undefined') (async function () {
@@ -142,7 +198,7 @@ if (typeof document !== 'undefined') (async function () {
   let starter = [];
   try { starter = await (await fetch('starter.json')).json(); } catch (e) { /* offline utan cache */ }
   if (!state) state = { recipes: structuredClone(starter), selections: [], extras: [], checked: [] };
-  for (const k of ['recipes', 'selections', 'extras', 'checked']) if (!Array.isArray(state[k])) state[k] = [];
+  try { state = normalizeState(state); } catch (e) { state = { recipes: structuredClone(starter), selections: [], extras: [], checked: [] }; }
 
   async function api(path, opts = {}) {
     const res = await fetch(API + path, {
@@ -172,7 +228,7 @@ if (typeof document !== 'undefined') (async function () {
     if (!auth) return;
     try {
       const { state: remote } = await api('/state');
-      if (remote && Array.isArray(remote.recipes)) { state = remote; localStorage.setItem('state', JSON.stringify(state)); }
+      if (remote && Array.isArray(remote.recipes)) { state = normalizeState(remote); localStorage.setItem('state', JSON.stringify(state)); }
       else save(false); // nytt konto: ladda upp det lokala
       syncError = false;
     } catch (e) {
@@ -325,10 +381,18 @@ if (typeof document !== 'undefined') (async function () {
   }
 
   function viewAccount() {
+    const backup = `<h2>Backup</h2>
+      <p>Backupen innehåller alla recept, valda recept, egna rader och avbockningar.</p>
+      <p class="backup-actions">
+        <button class="btn" id="exportBackup" type="button">Ladda ner backup</button>
+        <label class="btn btn-ghost backup-file">Återställ från backup <input type="file" id="importBackup" accept="application/json,.json"></label>
+      </p>
+      <p id="backupError" class="warn" hidden></p>`;
     if (auth) {
       return `<div class="view-head"><h1>Konto</h1></div>
         <p>Inloggad som <strong>${esc(auth.name)}</strong>. Recept och inköpslista synkas mellan dina enheter.</p>
         ${syncError ? '<p class="warn">Kunde inte nå servern, ändringar sparas lokalt och synkas när det går igen.</p>' : ''}
+        ${backup}
         <p><button class="btn btn-ghost" id="logout">Logga ut</button></p>`;
     }
     return `<div class="view-head"><h1>Konto</h1></div>
@@ -340,7 +404,8 @@ if (typeof document !== 'undefined') (async function () {
         <p id="authError" class="warn" hidden></p>
         <p><button class="btn" type="submit" data-mode="login">Logga in</button>
         <button class="btn btn-ghost" type="submit" data-mode="register">Skapa konto</button></p>
-      </form>`;
+      </form>
+      ${backup}`;
   }
 
   // ---------- render + händelser ----------
@@ -460,7 +525,7 @@ if (typeof document !== 'undefined') (async function () {
           id: oldId || slugify($('#edTitle').value, state.recipes.map(r => r.id)),
           title: $('#edTitle').value.trim(),
           portions: Number($('#edPortions').value),
-          source: $('#edSource').value.trim(),
+          source: safeUrl($('#edSource').value),
           ingredients,
           steps: $('#edSteps').value.split('\n').map(s => s.trim()).filter(Boolean),
         };
@@ -518,6 +583,38 @@ if (typeof document !== 'undefined') (async function () {
       auth = null;
       localStorage.removeItem('auth');
       render();
+    };
+
+    const exportBackup = $('#exportBackup');
+    if (exportBackup) exportBackup.onclick = () => {
+      const blob = new Blob([JSON.stringify(makeBackup(state), null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'grammat-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+    const importBackup = $('#importBackup');
+    if (importBackup) importBackup.onchange = async () => {
+      const errEl = $('#backupError');
+      errEl.hidden = true;
+      const file = importBackup.files && importBackup.files[0];
+      if (!file) return;
+      try {
+        const restored = normalizeState(JSON.parse(await file.text()));
+        if (!confirm('Återställ backupen? Nuvarande recept och lista ersätts.')) return;
+        state = restored;
+        localStorage.setItem('state', JSON.stringify(state));
+        save();
+        location.hash = '#/';
+      } catch (err) {
+        errEl.textContent = err.message || 'Kunde inte läsa backupen.';
+        errEl.hidden = false;
+      } finally {
+        importBackup.value = '';
+      }
     };
   }
 
