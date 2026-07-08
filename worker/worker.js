@@ -12,6 +12,7 @@
 // GET  /friends-feed (Bearer) -> [{...recipe, owner, ownerId, saves}, ...] fran gruppmedlemmar
 // GET  /groups (Bearer) -> [{id,name,createdBy,canInvite,members:[...]}]
 // POST /groups (Bearer) {name} -> {id,name}
+// DELETE /groups/:id (Bearer) -> {ok}  bara skaparen
 // POST /groups/:id/invite (Bearer) -> {code,expiresAt}
 // POST /join/:code (Bearer) -> {ok,group}
 // POST /save   (Bearer) {ownerId,recipeId} -> {ok,saves}   registrerar sparning
@@ -98,7 +99,8 @@ async function createFirebaseUser(env, claims) {
 function reindexStmts(env, ownerId, recipes) {
   const stmts = [env.DB.prepare('DELETE FROM recipes_index WHERE owner_id = ?').bind(ownerId)];
   for (const r of recipes) {
-    if (r.private === true || !r.id || !r.title) continue;
+    // r.src = sparad kopia av någon annans recept: originalägarens index har den redan
+    if (r.private === true || r.src || !r.id || !r.title) continue;
     stmts.push(env.DB.prepare(
       `INSERT INTO recipes_index (owner_id, id, title, course, visibility, saves_count, data)
        VALUES (?,?,?,?,'public',(SELECT COUNT(*) FROM saves WHERE owner_id = ? AND recipe_id = ?),?)`
@@ -303,6 +305,22 @@ export default {
         const id = created.meta.last_row_id;
         await env.DB.prepare('INSERT INTO group_members (group_id, user_id) VALUES (?,?)').bind(id, u.id).run();
         return json({ id, name });
+      }
+
+      const groupDel = path.match(/^\/groups\/(\d+)$/);
+      if (groupDel && req.method === 'DELETE') {
+        const u = await userFromRequest(req, env);
+        if (!u) return json({ error: 'Inte inloggad.' }, 401);
+        const groupId = Number(groupDel[1]);
+        const group = await env.DB.prepare('SELECT id, created_by FROM groups WHERE id = ?').bind(groupId).first();
+        if (!group) return json({ error: 'Gruppen finns inte.' }, 404);
+        if (group.created_by !== u.id) return json({ error: 'Bara gruppskaparen kan ta bort gruppen.' }, 403);
+        await env.DB.batch([
+          env.DB.prepare('DELETE FROM invites WHERE group_id = ?').bind(groupId),
+          env.DB.prepare('DELETE FROM group_members WHERE group_id = ?').bind(groupId),
+          env.DB.prepare('DELETE FROM groups WHERE id = ?').bind(groupId),
+        ]);
+        return json({ ok: true });
       }
 
       const groupInvite = path.match(/^\/groups\/(\d+)\/invite$/);

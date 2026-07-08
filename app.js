@@ -742,12 +742,15 @@ if (typeof document !== 'undefined') (async function () {
       : groupsList === null ? '<p class="hint">Laddar grupper ...</p>' : '';
     const groups = (groupsList || []).map(g => {
       const members = (g.members || []).map(m => esc(m.name)).join(', ');
-      const invite = inviteLinks[g.id] ? `<p><input type="text" readonly value="${esc(inviteLinks[g.id])}"></p>` : '';
+      const invite = inviteLinks[g.id]
+        ? `<p><input type="text" readonly value="${esc(inviteLinks[g.id])}"> <button class="btn btn-ghost" type="button" data-copy-invite="${esc(g.id)}" title="Kopiera l\u00e4nken" aria-label="Kopiera l\u00e4nken">\u2398</button></p>`
+        : '';
       return `<article class="card">
         <div class="card-title">${esc(g.name)}</div>
         <div class="card-meta">${members ? 'med ' + members : 'inga medlemmar \u00e4n'}</div>
         <div class="card-row">
-          ${g.canInvite ? `<button class="btn btn-ghost" data-invite-group="${esc(g.id)}">Skapa inbjudningsl\u00e4nk</button>` : ''}
+          ${g.canInvite ? `<button class="btn btn-ghost" data-invite-group="${esc(g.id)}">Skapa inbjudningsl\u00e4nk</button>
+          <button class="btn btn-ghost" data-delete-group="${esc(g.id)}">Ta bort grupp</button>` : ''}
         </div>
         ${invite}
       </article>`;
@@ -1125,6 +1128,24 @@ if (typeof document !== 'undefined') (async function () {
       try {
         const data = await api('/groups/' + encodeURIComponent(b.dataset.inviteGroup) + '/invite', { method: 'POST' });
         inviteLinks[b.dataset.inviteGroup] = location.origin + location.pathname + '#/join/' + data.code;
+        render();
+      } catch (err) { showErr(errEl, err.message); }
+    });
+    view.querySelectorAll('[data-copy-invite]').forEach(b => b.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(inviteLinks[b.dataset.copyInvite]);
+        b.textContent = '✓';
+        setTimeout(() => { b.textContent = '⎘'; }, 1500);
+      } catch (e) { b.previousElementSibling.select(); }
+    });
+    view.querySelectorAll('[data-delete-group]').forEach(b => b.onclick = async () => {
+      if (!confirm('Ta bort gruppen för alla medlemmar?')) return;
+      const errEl = $('#groupError');
+      errEl.hidden = true;
+      try {
+        await api('/groups/' + encodeURIComponent(b.dataset.deleteGroup), { method: 'DELETE' });
+        groupsList = null;
+        friendList = null;
         render();
       } catch (err) { showErr(errEl, err.message); }
     });
