@@ -8,6 +8,7 @@
 // PUT  /state  (Bearer) <- hela state-blobben {recipes,selections,extras,checked,struck}
 // GET  /allas-recept (Bearer) -> [{...recipe, owner}, ...] från alla konton (utfasas, ersatt av /feed)
 // GET  /feed   (Bearer) -> [{...recipe, owner, ownerId, saves}, ...] ur recipes_index
+// GET  /users/:id/recipes (Bearer) -> {owner, ownerId, recipes:[...]} offentliga skapade recept
 // POST /save   (Bearer) {ownerId,recipeId} -> {ok,saves}   registrerar sparning
 // DELETE /save (Bearer) {ownerId,recipeId} -> {ok,saves}   tar bort sparning
 // DELETE /account (Bearer Firebase-JWT) -> {ok}  raderar D1-raden (Firebase-usern raderas client-side)
@@ -222,6 +223,25 @@ export default {
            JOIN users u ON u.id = i.owner_id WHERE i.visibility = 'public'
            ORDER BY i.saves_count DESC, i.title LIMIT 200`).all();
         return json(results.map(r => ({ ...JSON.parse(r.data), owner: r.owner, ownerId: r.owner_id, saves: r.saves_count })));
+      }
+
+      const userRecipes = path.match(/^\/users\/(\d+)\/recipes$/);
+      if (userRecipes && req.method === 'GET') {
+        const u = await userFromRequest(req, env);
+        if (!u) return json({ error: 'Inte inloggad.' }, 401);
+        const ownerId = Number(userRecipes[1]);
+        const owner = await env.DB.prepare('SELECT id, name FROM users WHERE id = ?').bind(ownerId).first();
+        if (!owner) return json({ error: 'Användaren finns inte.' }, 404);
+        const { results } = await env.DB.prepare(
+          `SELECT i.owner_id, i.saves_count, i.data, u.name AS owner FROM recipes_index i
+           JOIN users u ON u.id = i.owner_id
+           WHERE i.visibility = 'public' AND i.owner_id = ?
+           ORDER BY i.saves_count DESC, i.title LIMIT 200`).bind(ownerId).all();
+        return json({
+          owner: owner.name,
+          ownerId,
+          recipes: results.map(r => ({ ...JSON.parse(r.data), owner: r.owner, ownerId: r.owner_id, saves: r.saves_count })),
+        });
       }
 
       // Sparräknaren: registreras när "Lägg till i mina recept" trycks, PK gör dubbelsparning ofarlig.

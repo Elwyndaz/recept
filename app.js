@@ -353,11 +353,19 @@ if (typeof document !== 'undefined') (async function () {
   function selFor(id) { return state.selections.find(s => s.id === id); }
   const previewPortions = {}; // portionsvisning på receptsidan innan receptet lagts i listan
   // recept kan visas/öppnas innan de finns i egna state.recipes (Allas recept-fliken)
-  function findRecipe(id) { return state.recipes.find(x => x.id === id) || starter.find(x => x.id === id) || (allasList || []).find(x => x.id === id); }
+  function publicRowKey(r) { return Number.isInteger(r.ownerId) ? r.ownerId + '|' + r.id : 'starter|' + r.id; }
+  function allPublicRows() {
+    return (allasList || []).concat(Object.values(userProfiles).flatMap(p => p.recipes || []));
+  }
+  function findPublicRecipe(id) {
+    return allPublicRows().find(x => publicRowKey(x) === id) || allPublicRows().find(x => x.id === id);
+  }
+  function findRecipe(id) { return state.recipes.find(x => x.id === id) || starter.find(x => x.id === id) || findPublicRecipe(id); }
 
   let allasList = null; // null = ej hämtad än
   let allasLoading = false;
   let allasLoadError = false;
+  let userProfiles = {};
   function loadAllas() {
     if (!loggedIn() || allasList !== null || allasLoading) return;
     allasLoading = true;
@@ -367,6 +375,22 @@ if (typeof document !== 'undefined') (async function () {
       .then(list => { allasList = list.map(r => ({ ...r, course: normalizeCourse(r.course) })); render(); })
       .catch(() => { allasLoadError = true; render(); })
       .finally(() => { allasLoading = false; });
+  }
+
+  function loadUserProfile(ownerId) {
+    if (!loggedIn() || userProfiles[ownerId]?.loading || userProfiles[ownerId]?.recipes) return;
+    userProfiles[ownerId] = { loading: true, error: false, recipes: null, owner: '' };
+    api('/users/' + encodeURIComponent(ownerId) + '/recipes')
+      .then(data => {
+        userProfiles[ownerId] = {
+          loading: false,
+          error: false,
+          owner: data.owner || '',
+          recipes: (data.recipes || []).map(r => ({ ...r, course: normalizeCourse(r.course) })),
+        };
+        render();
+      })
+      .catch(() => { userProfiles[ownerId] = { loading: false, error: true, recipes: null, owner: '' }; render(); });
   }
 
   function recipeCard(r) {
@@ -394,26 +418,32 @@ if (typeof document !== 'undefined') (async function () {
       ${state.recipes.length ? sections : '<p class="empty">Inga recept än. Lägg till ditt första med "Nytt recept".</p>'}`;
   }
 
-  function viewAllasRecept() {
+  function mineForPublic(r) {
     const mySrcs = new Set(state.recipes.filter(r => r.src).map(r => r.src.owner + '|' + r.src.id));
     const myLocalIds = new Set(state.recipes.filter(r => !r.src).map(r => r.id));
-    const rowKey = r => Number.isInteger(r.ownerId) ? r.ownerId + '|' + r.id : 'starter|' + r.id;
-    const mineFor = r => Number.isInteger(r.ownerId) ? mySrcs.has(rowKey(r)) || (r.owner === 'grammat' && myLocalIds.has(r.id)) : myLocalIds.has(r.id);
+    return Number.isInteger(r.ownerId)
+      ? mySrcs.has(publicRowKey(r)) || ((r.owner === 'grammat' || r.owner === authName) && myLocalIds.has(r.id))
+      : myLocalIds.has(r.id);
+  }
 
-    function card(r) {
-      const mine = mineFor(r);
-      const nutr = nutritionPerPortion(r, nutrients);
-      const key = rowKey(r);
-      return `<article class="card" data-card="${esc(r.id)}">
-        <a class="card-title" href="#/recept/${esc(r.id)}">${esc(r.title)}</a>
-        <div class="card-meta">bas ${r.portions} port · ${r.ingredients.length} ingredienser${nutr.kcal ? ` · ${fmtNum(nutr.kcal)} kcal/port` : ''}${r.saves ? ` · sparad av ${fmtNum(r.saves)}` : ''}${r._ownerLabel ? ' · från ' + esc(r._ownerLabel) : ''}</div>
-        <div class="card-row">
-          ${mine ? `<button class="btn btn-ghost" data-remove-allas="${esc(key)}">Ta bort ur mina recept</button>` : `<button class="btn" data-add-allas="${esc(key)}">Lägg till i mina recept</button>`}
-        </div>
-      </article>`;
-    }
+  function publicRecipeCard(r, showOwner = true) {
+    const mine = mineForPublic(r);
+    const nutr = nutritionPerPortion(r, nutrients);
+    const key = publicRowKey(r);
+    const linkId = Number.isInteger(r.ownerId) ? key : r.id;
+    const owner = showOwner && r._ownerLabel && Number.isInteger(r.ownerId)
+      ? ` · från <a href="#/anvandare/${esc(r.ownerId)}">${esc(r._ownerLabel)}</a>`
+      : showOwner && r._ownerLabel ? ' · från ' + esc(r._ownerLabel) : '';
+    return `<article class="card" data-card="${esc(linkId)}">
+      <a class="card-title" href="#/recept/${esc(linkId)}">${esc(r.title)}</a>
+      <div class="card-meta">bas ${r.portions} port · ${r.ingredients.length} ingredienser${nutr.kcal ? ` · ${fmtNum(nutr.kcal)} kcal/port` : ''}${r.saves ? ` · sparad av ${fmtNum(r.saves)}` : ''}${owner}</div>
+      <div class="card-row">
+        ${mine ? `<button class="btn btn-ghost" data-remove-allas="${esc(key)}">Ta bort ur mina recept</button>` : `<button class="btn" data-add-allas="${esc(key)}">Lägg till i mina recept</button>`}
+      </div>
+    </article>`;
+  }
 
-    function sections(list) {
+  function publicRecipeSections(list, showOwner = true) {
       const byCourse = {};
       for (const r of list) {
         const course = normalizeCourse(r.course);
@@ -421,9 +451,10 @@ if (typeof document !== 'undefined') (async function () {
       }
       return COURSES.filter(c => byCourse[c]).map(c => `
         <h2>${esc(COURSE_LABELS[c])}</h2>
-        <div class="cards">${byCourse[c].map(card).join('')}</div>`).join('');
-    }
+        <div class="cards">${byCourse[c].map(r => publicRecipeCard(r, showOwner)).join('')}</div>`).join('');
+  }
 
+  function viewAllasRecept() {
     // Inloggad med laddad feed: startrecepten kommer från systemkontot grammat (samma källa
     // som allt annat). Utloggad/laddar: starter.json som förut.
     let starterRows = starter, othersHtml;
@@ -441,8 +472,21 @@ if (typeof document !== 'undefined') (async function () {
     }
 
     return `<div class="view-head"><h1>Allas recept</h1></div>
-      ${sections(starterRows)}
+      ${publicRecipeSections(starterRows)}
       ${othersHtml}`;
+  }
+
+  function viewUserProfile(ownerId) {
+    if (!loggedIn()) return '<p class="empty">Logga in för att se användarens recept.</p>';
+    if (!userProfiles[ownerId] || userProfiles[ownerId].loading) {
+      loadUserProfile(ownerId);
+      return '<p class="hint">Laddar recept …</p>';
+    }
+    const profile = userProfiles[ownerId];
+    if (profile.error) return '<p class="warn">Kunde inte ladda användarens recept just nu.</p>';
+    const recipes = (profile.recipes || []).map(r => ({ ...r, _ownerLabel: profile.owner || r.owner || '' }));
+    return `<div class="view-head"><h1>${esc(profile.owner || 'Användare')}</h1><a class="btn btn-ghost" href="#/allas">Alla recept</a></div>
+      ${recipes.length ? publicRecipeSections(recipes, false) : '<p class="empty">Inga offentliga recept än.</p>'}`;
   }
 
   function viewRecipe(id) {
@@ -741,7 +785,9 @@ if (typeof document !== 'undefined') (async function () {
         const mine = state.recipes.some(x => x.id === id);
         active = mine ? m === '#/' : m === '#/allas';
       } else {
-        active = m === '#/' ? !h.startsWith('#/lista') && !h.startsWith('#/konto') && !h.startsWith('#/allas') : h.startsWith(m);
+        active = m === '#/'
+          ? !h.startsWith('#/lista') && !h.startsWith('#/konto') && !h.startsWith('#/allas') && !h.startsWith('#/anvandare')
+          : (m === '#/allas' ? h.startsWith('#/allas') || h.startsWith('#/anvandare') : h.startsWith(m));
       }
       a.classList.toggle('active', active);
     });
@@ -750,9 +796,11 @@ if (typeof document !== 'undefined') (async function () {
   function render() {
     const h = location.hash || '#/';
     const m = h.match(/^#\/(recept|redigera)\/(.+)$/);
+    const userMatch = h.match(/^#\/anvandare\/(\d+)$/);
     let html;
     if (m && m[1] === 'recept') html = viewRecipe(decodeURIComponent(m[2]));
     else if (m && m[1] === 'redigera') html = viewEditor(decodeURIComponent(m[2]));
+    else if (userMatch) html = viewUserProfile(userMatch[1]);
     else if (h === '#/nytt') html = viewEditor(null);
     else if (h === '#/importera') html = viewImport();
     else if (h === '#/lista') html = viewList();
@@ -823,16 +871,16 @@ if (typeof document !== 'undefined') (async function () {
     const unsave = r => {
       if (!r || !r.src || !loggedIn()) return;
       api('/save', { method: 'DELETE', body: JSON.stringify({ ownerId: r.src.owner, recipeId: r.src.id }) }).catch(() => {});
-      const row = (allasList || []).find(x => x.id === r.src.id && x.ownerId === r.src.owner);
+      const row = allPublicRows().find(x => x.id === r.src.id && x.ownerId === r.src.owner);
       if (row && row.saves > 0) row.saves--;
     };
     view.querySelectorAll('[data-add-allas]').forEach(b => b.onclick = () => {
       const id = b.dataset.addAllas;
       // feed-raden först: den bär ownerId som starter.json saknar
-      const r = (allasList || []).find(x => (Number.isInteger(x.ownerId) ? x.ownerId + '|' + x.id : 'starter|' + x.id) === id) || starter.find(x => 'starter|' + x.id === id || x.id === id);
+      const r = allPublicRows().find(x => publicRowKey(x) === id) || starter.find(x => 'starter|' + x.id === id || x.id === id);
       if (!r) return;
       const copy = JSON.parse(JSON.stringify(r));
-      delete copy.owner; delete copy.ownerId; delete copy.saves; delete copy._ownerLabel;
+      delete copy.owner; delete copy.ownerId; delete copy.saves; delete copy._ownerLabel; delete copy._idCollision;
       if (state.recipes.some(x => x.id === copy.id)) copy.id = slugify(copy.title, state.recipes.map(x => x.id));
       if (loggedIn() && Number.isInteger(r.ownerId)) {
         copy.src = { owner: r.ownerId, id: r.id };
