@@ -29,3 +29,27 @@ CREATE TABLE IF NOT EXISTS saves (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (user_id, owner_id, recipe_id)
 );
+
+CREATE TABLE IF NOT EXISTS groups (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  created_by INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS group_members (
+  group_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  joined_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (group_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id);
+
+CREATE TABLE IF NOT EXISTS invites (
+  code TEXT PRIMARY KEY,
+  group_id INTEGER NOT NULL,
+  created_by INTEGER NOT NULL,
+  expires_at TEXT NOT NULL,
+  used_by INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_invites_group ON invites(group_id);

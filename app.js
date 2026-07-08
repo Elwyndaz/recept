@@ -355,7 +355,9 @@ if (typeof document !== 'undefined') (async function () {
   // recept kan visas/öppnas innan de finns i egna state.recipes (Allas recept-fliken)
   function publicRowKey(r) { return Number.isInteger(r.ownerId) ? r.ownerId + '|' + r.id : 'starter|' + r.id; }
   function allPublicRows() {
-    return (allasList || []).concat(Object.values(userProfiles).flatMap(p => p.recipes || []));
+    return (allasList || [])
+      .concat(friendList || [])
+      .concat(Object.values(userProfiles).flatMap(p => p.recipes || []));
   }
   function findPublicRecipe(id) {
     return allPublicRows().find(x => publicRowKey(x) === id) || allPublicRows().find(x => x.id === id);
@@ -365,7 +367,21 @@ if (typeof document !== 'undefined') (async function () {
   let allasList = null; // null = ej hämtad än
   let allasLoading = false;
   let allasLoadError = false;
+  let friendList = null;
+  let friendLoading = false;
+  let friendLoadError = false;
+  let groupsList = null;
+  let groupsLoading = false;
+  let groupsLoadError = false;
+  const inviteLinks = {};
   let userProfiles = {};
+  function resetRemoteCaches() {
+    allasList = null;
+    friendList = null;
+    groupsList = null;
+    userProfiles = {};
+    for (const k of Object.keys(inviteLinks)) delete inviteLinks[k];
+  }
   function loadAllas() {
     if (!loggedIn() || allasList !== null || allasLoading) return;
     allasLoading = true;
@@ -391,6 +407,26 @@ if (typeof document !== 'undefined') (async function () {
         render();
       })
       .catch(() => { userProfiles[ownerId] = { loading: false, error: true, recipes: null, owner: '' }; render(); });
+  }
+
+  function loadFriends() {
+    if (!loggedIn() || friendList !== null || friendLoading) return;
+    friendLoading = true;
+    friendLoadError = false;
+    api('/friends-feed')
+      .then(list => { friendList = list.map(r => ({ ...r, course: normalizeCourse(r.course), _ownerLabel: r.owner || '' })); render(); })
+      .catch(() => { friendLoadError = true; render(); })
+      .finally(() => { friendLoading = false; });
+  }
+
+  function loadGroups() {
+    if (!loggedIn() || groupsList !== null || groupsLoading) return;
+    groupsLoading = true;
+    groupsLoadError = false;
+    api('/groups')
+      .then(list => { groupsList = list; render(); })
+      .catch(() => { groupsLoadError = true; render(); })
+      .finally(() => { groupsLoading = false; });
   }
 
   function recipeCard(r) {
@@ -474,6 +510,28 @@ if (typeof document !== 'undefined') (async function () {
     return `<div class="view-head"><h1>Allas recept</h1></div>
       ${publicRecipeSections(starterRows)}
       ${othersHtml}`;
+  }
+
+  function viewFriends() {
+    if (!loggedIn()) return `<div class="view-head"><h1>V\u00e4nners recept</h1></div>
+      <p class="hint">Logga in f\u00f6r att se recept fr\u00e5n dina grupper.</p>`;
+    if (friendList === null) {
+      loadFriends();
+      return `<div class="view-head"><h1>V\u00e4nners recept</h1><a class="btn btn-ghost" href="#/konto">Grupper</a></div>
+        ${friendLoadError ? '<p class="warn">Kunde inte ladda v\u00e4nners recept just nu.</p>' : '<p class="hint">Laddar recept fr\u00e5n dina grupper ...</p>'}`;
+    }
+    return `<div class="view-head"><h1>V\u00e4nners recept</h1><a class="btn btn-ghost" href="#/konto">Grupper</a></div>
+      ${friendList.length ? publicRecipeSections(friendList) : '<p class="empty">Inga recept fr\u00e5n grupper \u00e4n. Skapa en grupp under Konto och bjud in n\u00e5gon.</p>'}`;
+  }
+
+  function viewJoin(code) {
+    if (!loggedIn()) return `<div class="view-head"><h1>G\u00e5 med i grupp</h1></div>
+      <p>Logga in eller skapa konto f\u00f6rst. \u00d6ppna sedan inbjudningsl\u00e4nken igen.</p>
+      <p><a class="btn" href="#/konto">Till Konto</a></p>`;
+    return `<div class="view-head"><h1>G\u00e5 med i grupp</h1></div>
+      <p>Du har en gruppinbjudan.</p>
+      <p id="joinError" class="warn" hidden></p>
+      <p><button class="btn" data-join-code="${esc(code)}">G\u00e5 med</button></p>`;
   }
 
   function viewUserProfile(ownerId) {
@@ -676,6 +734,35 @@ if (typeof document !== 'undefined') (async function () {
     return (e && m[e.code]) || (e && e.message) || 'Något gick fel.';
   }
 
+  function viewGroupsBlock() {
+    if (!loggedIn()) return '';
+    if (groupsList === null) loadGroups();
+    const status = groupsLoadError
+      ? '<p class="warn">Kunde inte ladda grupper just nu.</p>'
+      : groupsList === null ? '<p class="hint">Laddar grupper ...</p>' : '';
+    const groups = (groupsList || []).map(g => {
+      const members = (g.members || []).map(m => esc(m.name)).join(', ');
+      const invite = inviteLinks[g.id] ? `<p><input type="text" readonly value="${esc(inviteLinks[g.id])}"></p>` : '';
+      return `<article class="card">
+        <div class="card-title">${esc(g.name)}</div>
+        <div class="card-meta">${members ? 'med ' + members : 'inga medlemmar \u00e4n'}</div>
+        <div class="card-row">
+          ${g.canInvite ? `<button class="btn btn-ghost" data-invite-group="${esc(g.id)}">Skapa inbjudningsl\u00e4nk</button>` : ''}
+        </div>
+        ${invite}
+      </article>`;
+    }).join('');
+    return `<h2>Grupper</h2>
+      <p class="hint">Gruppmedlemmar ser varandras offentliga recept under V\u00e4nners recept.</p>
+      <form id="groupForm" class="extra-form">
+        <input type="text" id="groupName" maxlength="40" placeholder="Gruppnamn" required>
+        <button class="btn btn-ghost" type="submit">Skapa grupp</button>
+      </form>
+      <p id="groupError" class="warn" hidden></p>
+      ${status}
+      ${groups ? `<div class="cards">${groups}</div>` : ''}`;
+  }
+
   function viewAccount() {
     const backup = `<h2>Backup</h2>
       <p>Backupen innehåller alla recept, valda recept, egna rader och avbockningar.</p>
@@ -725,6 +812,7 @@ if (typeof document !== 'undefined') (async function () {
             <p><button class="btn btn-ghost" type="submit">Koppla gamla kontot</button></p>
           </form>
         </details>
+        ${viewGroupsBlock()}
         ${backup}
         <p class="action-row"><button class="btn btn-ghost" id="logout">Logga ut</button> <button class="btn btn-danger" id="deleteAccount" type="button">Radera kontot</button></p>`;
     }
@@ -735,6 +823,7 @@ if (typeof document !== 'undefined') (async function () {
         <h2>Byt till nya inloggningen</h2>
         <p class="hint">PIN-inloggningen fasas ut. Logga in med Google eller skapa konto med e-post, så följer dina recept med automatiskt och du kan återställa lösenordet själv.</p>
         ${loginForms}
+        ${viewGroupsBlock()}
         ${backup}
         <p><button class="btn btn-ghost" id="logout">Logga ut</button></p>`;
     }
@@ -783,10 +872,10 @@ if (typeof document !== 'undefined') (async function () {
       if (recipeMatch) {
         const id = decodeURIComponent(recipeMatch[1]);
         const mine = state.recipes.some(x => x.id === id);
-        active = mine ? m === '#/' : m === '#/allas';
+        active = mine ? m === '#/' : (friendList || []).some(x => publicRowKey(x) === id) ? m === '#/vanner' : m === '#/allas';
       } else {
         active = m === '#/'
-          ? !h.startsWith('#/lista') && !h.startsWith('#/konto') && !h.startsWith('#/allas') && !h.startsWith('#/anvandare')
+          ? !h.startsWith('#/lista') && !h.startsWith('#/konto') && !h.startsWith('#/allas') && !h.startsWith('#/anvandare') && !h.startsWith('#/vanner') && !h.startsWith('#/join')
           : (m === '#/allas' ? h.startsWith('#/allas') || h.startsWith('#/anvandare') : h.startsWith(m));
       }
       a.classList.toggle('active', active);
@@ -797,14 +886,17 @@ if (typeof document !== 'undefined') (async function () {
     const h = location.hash || '#/';
     const m = h.match(/^#\/(recept|redigera)\/(.+)$/);
     const userMatch = h.match(/^#\/anvandare\/(\d+)$/);
+    const joinMatch = h.match(/^#\/join\/([A-Z0-9]{6,16})$/);
     let html;
     if (m && m[1] === 'recept') html = viewRecipe(decodeURIComponent(m[2]));
     else if (m && m[1] === 'redigera') html = viewEditor(decodeURIComponent(m[2]));
     else if (userMatch) html = viewUserProfile(userMatch[1]);
+    else if (joinMatch) html = viewJoin(joinMatch[1]);
     else if (h === '#/nytt') html = viewEditor(null);
     else if (h === '#/importera') html = viewImport();
     else if (h === '#/lista') html = viewList();
     else if (h === '#/konto') html = viewAccount();
+    else if (h === '#/vanner') html = viewFriends();
     else if (h === '#/allas') html = viewAllasRecept();
     else html = viewCatalog();
     $('#view').innerHTML = html;
@@ -1003,6 +1095,39 @@ if (typeof document !== 'undefined') (async function () {
 
     // ---- inloggning (Firebase + legacy) ----
     const showErr = (el, msg) => { el.textContent = msg; el.hidden = false; };
+    const joinBtn = view.querySelector('[data-join-code]');
+    if (joinBtn) joinBtn.onclick = async () => {
+      const errEl = $('#joinError');
+      errEl.hidden = true;
+      try {
+        await api('/join/' + encodeURIComponent(joinBtn.dataset.joinCode), { method: 'POST' });
+        groupsList = null;
+        friendList = null;
+        location.hash = '#/vanner';
+        render();
+      } catch (err) { showErr(errEl, err.message); }
+    };
+    const groupForm = $('#groupForm');
+    if (groupForm) groupForm.onsubmit = async e => {
+      e.preventDefault();
+      const errEl = $('#groupError');
+      errEl.hidden = true;
+      try {
+        await api('/groups', { method: 'POST', body: JSON.stringify({ name: $('#groupName').value }) });
+        groupsList = null;
+        friendList = null;
+        render();
+      } catch (err) { showErr(errEl, err.message); }
+    };
+    view.querySelectorAll('[data-invite-group]').forEach(b => b.onclick = async () => {
+      const errEl = $('#groupError');
+      errEl.hidden = true;
+      try {
+        const data = await api('/groups/' + encodeURIComponent(b.dataset.inviteGroup) + '/invite', { method: 'POST' });
+        inviteLinks[b.dataset.inviteGroup] = location.origin + location.pathname + '#/join/' + data.code;
+        render();
+      } catch (err) { showErr(errEl, err.message); }
+    });
     const googleLogin = $('#googleLogin');
     if (googleLogin) googleLogin.onclick = async () => {
       const errEl = $('#authError');
@@ -1048,7 +1173,7 @@ if (typeof document !== 'undefined') (async function () {
         const { name } = await api('/name', { method: 'PUT', body: JSON.stringify({ name: $('#nameNew').value }) });
         authName = name;
         localStorage.setItem('authName', name);
-        allasList = null; // ägaretiketterna har bytt namn
+        resetRemoteCaches(); // ägaretiketterna har bytt namn
         render();
       } catch (err) { showErr(errEl, err.message); }
     };
@@ -1065,7 +1190,7 @@ if (typeof document !== 'undefined') (async function () {
       try {
         const data = await api('/login', { method: 'POST', body: JSON.stringify({ name: $('#linkName').value, pin: $('#linkPin').value }) });
         await api('/link', { method: 'POST', body: JSON.stringify({ legacyToken: data.token }) });
-        allasList = null;
+        resetRemoteCaches();
         await pullState();
         render();
       } catch (err) { showErr(errEl, err.message); }
@@ -1081,7 +1206,7 @@ if (typeof document !== 'undefined') (async function () {
         authName = data.name;
         localStorage.setItem('auth', JSON.stringify(legacy));
         localStorage.setItem('authName', data.name);
-        allasList = null;
+        resetRemoteCaches();
         await pullState();
         location.hash = '#/';
         render();
@@ -1094,7 +1219,7 @@ if (typeof document !== 'undefined') (async function () {
       localStorage.removeItem('auth');
       authName = null;
       localStorage.removeItem('authName');
-      allasList = null;
+      resetRemoteCaches();
       render();
     };
     const deleteAccount = $('#deleteAccount');
@@ -1105,7 +1230,7 @@ if (typeof document !== 'undefined') (async function () {
         if (fbUser) await fbUser.delete(); // raderar Firebase-användaren, triggar onAuthStateChanged(null)
         authName = null;
         localStorage.removeItem('authName');
-        allasList = null;
+        resetRemoteCaches();
         render();
       } catch (e) { alert(fbErr(e)); }
     };
@@ -1157,7 +1282,7 @@ if (typeof document !== 'undefined') (async function () {
           legacy = null;
           localStorage.removeItem('auth');
         }
-        allasList = null;
+        resetRemoteCaches();
         await pullState();
       } else if (!legacy) {
         authName = null;

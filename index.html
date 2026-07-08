@@ -138,6 +138,7 @@ textarea{width:100%}
     <nav class="nav" aria-label="Huvudmeny">
       <a href="#/" data-match="#/">Mina recept</a>
       <a href="#/lista" data-match="#/lista">Lista<span id="navListCount"></span></a>
+      <a href="#/vanner" data-match="#/vanner">V&auml;nner</a>
       <a href="#/allas" data-match="#/allas">Allas recept</a>
       <a href="#/konto" data-match="#/konto" id="navUser">konto</a>
     </nav>
@@ -158,6 +159,6 @@ const app = initializeApp({
 window.fb = { auth: fbAuth.getAuth(app), ...fbAuth };
 window.dispatchEvent(new Event('fb-ready'));
 </script>
-<script src="app.js?v=ownerprofiles-20260708"></script>
+<script src="app.js?v=groups-20260708"></script>
 </body>
 </html>

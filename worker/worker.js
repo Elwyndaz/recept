@@ -9,6 +9,11 @@
 // GET  /allas-recept (Bearer) -> [{...recipe, owner}, ...] från alla konton (utfasas, ersatt av /feed)
 // GET  /feed   (Bearer) -> [{...recipe, owner, ownerId, saves}, ...] ur recipes_index
 // GET  /users/:id/recipes (Bearer) -> {owner, ownerId, recipes:[...]} offentliga skapade recept
+// GET  /friends-feed (Bearer) -> [{...recipe, owner, ownerId, saves}, ...] fran gruppmedlemmar
+// GET  /groups (Bearer) -> [{id,name,createdBy,canInvite,members:[...]}]
+// POST /groups (Bearer) {name} -> {id,name}
+// POST /groups/:id/invite (Bearer) -> {code,expiresAt}
+// POST /join/:code (Bearer) -> {ok,group}
 // POST /save   (Bearer) {ownerId,recipeId} -> {ok,saves}   registrerar sparning
 // DELETE /save (Bearer) {ownerId,recipeId} -> {ok,saves}   tar bort sparning
 // DELETE /account (Bearer Firebase-JWT) -> {ok}  raderar D1-raden (Firebase-usern raderas client-side)
@@ -100,6 +105,14 @@ function reindexStmts(env, ownerId, recipes) {
     ).bind(ownerId, String(r.id), String(r.title), normalizeCourse(r.course), ownerId, String(r.id), JSON.stringify({ ...r, course: normalizeCourse(r.course) })));
   }
   return stmts;
+}
+
+function inviteCode() {
+  return crypto.randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase();
+}
+
+function rowRecipe(r) {
+  return { ...JSON.parse(r.data), owner: r.owner, ownerId: r.owner_id, saves: r.saves_count };
 }
 
 async function userFromRequest(req, env) {
@@ -222,7 +235,23 @@ export default {
           `SELECT i.owner_id, i.saves_count, i.data, u.name AS owner FROM recipes_index i
            JOIN users u ON u.id = i.owner_id WHERE i.visibility = 'public'
            ORDER BY i.saves_count DESC, i.title LIMIT 200`).all();
-        return json(results.map(r => ({ ...JSON.parse(r.data), owner: r.owner, ownerId: r.owner_id, saves: r.saves_count })));
+        return json(results.map(rowRecipe));
+      }
+
+      if (path === '/friends-feed' && req.method === 'GET') {
+        const u = await userFromRequest(req, env);
+        if (!u) return json({ error: 'Inte inloggad.' }, 401);
+        const { results } = await env.DB.prepare(
+          `SELECT i.owner_id, i.saves_count, i.data, users.name AS owner FROM recipes_index i
+           JOIN users ON users.id = i.owner_id
+           WHERE i.visibility = 'public' AND i.owner_id IN (
+             SELECT DISTINCT gm2.user_id
+             FROM group_members gm1
+             JOIN group_members gm2 ON gm2.group_id = gm1.group_id
+             WHERE gm1.user_id = ? AND gm2.user_id <> ?
+           )
+           ORDER BY i.saves_count DESC, i.title LIMIT 200`).bind(u.id, u.id).all();
+        return json(results.map(rowRecipe));
       }
 
       const userRecipes = path.match(/^\/users\/(\d+)\/recipes$/);
@@ -240,8 +269,80 @@ export default {
         return json({
           owner: owner.name,
           ownerId,
-          recipes: results.map(r => ({ ...JSON.parse(r.data), owner: r.owner, ownerId: r.owner_id, saves: r.saves_count })),
+          recipes: results.map(rowRecipe),
         });
+      }
+
+      if (path === '/groups' && req.method === 'GET') {
+        const u = await userFromRequest(req, env);
+        if (!u) return json({ error: 'Inte inloggad.' }, 401);
+        const { results: groups } = await env.DB.prepare(
+          `SELECT g.id, g.name, g.created_by FROM groups g
+           JOIN group_members gm ON gm.group_id = g.id
+           WHERE gm.user_id = ?
+           ORDER BY g.created_at, g.name`).bind(u.id).all();
+        const out = [];
+        for (const g of groups) {
+          const { results: members } = await env.DB.prepare(
+            `SELECT users.id, users.name FROM group_members gm
+             JOIN users ON users.id = gm.user_id
+             WHERE gm.group_id = ?
+             ORDER BY gm.joined_at, users.name`).bind(g.id).all();
+          out.push({ id: g.id, name: g.name, createdBy: g.created_by, canInvite: g.created_by === u.id, members });
+        }
+        return json(out);
+      }
+
+      if (path === '/groups' && req.method === 'POST') {
+        const u = await userFromRequest(req, env);
+        if (!u) return json({ error: 'Inte inloggad.' }, 401);
+        const b = await req.json().catch(() => ({}));
+        const name = String(b.name || '').trim().slice(0, 40);
+        if (name.length < 2) return json({ error: 'Gruppnamnet beh\u00f6ver minst 2 tecken.' }, 400);
+        const created = await env.DB.prepare('INSERT INTO groups (name, created_by) VALUES (?,?)').bind(name, u.id).run();
+        const id = created.meta.last_row_id;
+        await env.DB.prepare('INSERT INTO group_members (group_id, user_id) VALUES (?,?)').bind(id, u.id).run();
+        return json({ id, name });
+      }
+
+      const groupInvite = path.match(/^\/groups\/(\d+)\/invite$/);
+      if (groupInvite && req.method === 'POST') {
+        const u = await userFromRequest(req, env);
+        if (!u) return json({ error: 'Inte inloggad.' }, 401);
+        const groupId = Number(groupInvite[1]);
+        const group = await env.DB.prepare('SELECT id, created_by FROM groups WHERE id = ?').bind(groupId).first();
+        if (!group) return json({ error: 'Gruppen finns inte.' }, 404);
+        if (group.created_by !== u.id) return json({ error: 'Bara gruppskaparen kan bjuda in.' }, 403);
+        for (let i = 0; i < 5; i++) {
+          const code = inviteCode();
+          try {
+            await env.DB.prepare(
+              `INSERT INTO invites (code, group_id, created_by, expires_at)
+               VALUES (?,?,?,datetime('now','+14 days'))`
+            ).bind(code, groupId, u.id).run();
+            const row = await env.DB.prepare('SELECT expires_at FROM invites WHERE code = ?').bind(code).first();
+            return json({ code, expiresAt: row.expires_at });
+          } catch (e) {}
+        }
+        return json({ error: 'Kunde inte skapa inbjudan.' }, 500);
+      }
+
+      const joinInvite = path.match(/^\/join\/([A-Z0-9]{6,16})$/);
+      if (joinInvite && req.method === 'POST') {
+        const u = await userFromRequest(req, env);
+        if (!u) return json({ error: 'Inte inloggad.' }, 401);
+        const code = joinInvite[1];
+        const invite = await env.DB.prepare(
+          `SELECT i.code, i.group_id, i.used_by, g.name
+           FROM invites i JOIN groups g ON g.id = i.group_id
+           WHERE i.code = ? AND i.expires_at > datetime('now')`).bind(code).first();
+        if (!invite) return json({ error: 'Inbjudan finns inte eller har g\u00e5tt ut.' }, 404);
+        if (invite.used_by && invite.used_by !== u.id) return json({ error: 'Inbjudan \u00e4r redan anv\u00e4nd.' }, 409);
+        await env.DB.batch([
+          env.DB.prepare('INSERT OR IGNORE INTO group_members (group_id, user_id) VALUES (?,?)').bind(invite.group_id, u.id),
+          env.DB.prepare('UPDATE invites SET used_by = ? WHERE code = ? AND (used_by IS NULL OR used_by = ?)').bind(u.id, code, u.id),
+        ]);
+        return json({ ok: true, group: { id: invite.group_id, name: invite.name } });
       }
 
       // Sparräknaren: registreras när "Lägg till i mina recept" trycks, PK gör dubbelsparning ofarlig.
@@ -271,6 +372,9 @@ export default {
         const u = await userFromRequest(req, env);
         if (!u) return json({ error: 'Inte inloggad.' }, 401);
         await env.DB.batch([
+          env.DB.prepare('DELETE FROM invites WHERE created_by = ? OR used_by = ? OR group_id IN (SELECT id FROM groups WHERE created_by = ?)').bind(u.id, u.id, u.id),
+          env.DB.prepare('DELETE FROM group_members WHERE user_id = ? OR group_id IN (SELECT id FROM groups WHERE created_by = ?)').bind(u.id, u.id),
+          env.DB.prepare('DELETE FROM groups WHERE created_by = ?').bind(u.id),
           env.DB.prepare('DELETE FROM users WHERE id = ?').bind(u.id),
           env.DB.prepare('DELETE FROM recipes_index WHERE owner_id = ?').bind(u.id),
           env.DB.prepare('DELETE FROM saves WHERE user_id = ? OR owner_id = ?').bind(u.id, u.id),
