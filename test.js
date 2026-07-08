@@ -1,7 +1,7 @@
 // ponytail: minsta möjliga check av summering/skalning - körs med: node test.js
 const assert = require('assert');
 const fs = require('fs');
-const { aggregate, fmtNum, fmtItem, fmtIngredient, spiceHint, parseImport, normalizeState, makeBackup, safeUrl, nutritionPerPortion, COURSES, dedupeAllas } = require('./app.js');
+const { aggregate, fmtNum, fmtItem, fmtIngredient, recipeAsText, spiceHint, parseImport, normalizeState, makeBackup, safeUrl, nutritionPerPortion, COURSES, dedupeAllas } = require('./app.js');
 
 const recipes = JSON.parse(fs.readFileSync(__dirname + '/starter.json', 'utf8'));
 
@@ -120,5 +120,35 @@ assert.strictEqual(others.length, 3, 'startpaket-id filtreras bort');
 assert.strictEqual(others.find(r => r.id === 'unik')._ownerLabel, null, 'ingen ägaretikett utan krock');
 assert.strictEqual(others.find(r => r.owner === 'julia' && r.id === 'kollision')._ownerLabel, 'julia', 'ägaretikett vid krock');
 assert.strictEqual(others.find(r => r.owner === 'hans')._ownerLabel, 'hans', 'ägaretikett vid krock');
+
+// 11. Kopiera recept: ren text för sms/texteditor, inte JSON
+const copyRecipe = {
+  title: 'Testpasta',
+  portions: 2,
+  source: 'https://example.com/recept',
+  ingredients: [
+    { name: 'pasta', amount: 200, unit: 'g', cat: 'skafferi' },
+    { name: 'salt', toTaste: true, cat: 'skafferi', group: 'Sås' },
+  ],
+  steps: ['Koka pastan.', 'Blanda med såsen.'],
+};
+assert.strictEqual(recipeAsText(copyRecipe, 4), [
+  'Testpasta',
+  '',
+  '4 portioner',
+  '',
+  'Ingredienser',
+  '- pasta: 400 g',
+  '',
+  'Sås',
+  '- salt: efter smak',
+  '',
+  'Gör så här',
+  '1. Koka pastan.',
+  '2. Blanda med såsen.',
+  '',
+  'Källa',
+  'https://example.com/recept',
+].join('\n'), 'kopierat recept är läsbar ren text');
 
 console.log('Alla test OK');

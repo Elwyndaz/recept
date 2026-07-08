@@ -78,6 +78,28 @@ function fmtIngredient(ing, f) {
   return s;
 }
 
+function recipeAsText(recipe, portions) {
+  const p = portions || recipe.portions;
+  const f = p / recipe.portions;
+  const lines = [recipe.title, '', fmtNum(p) + ' portioner', '', 'Ingredienser'];
+  let lastGroup = null;
+  for (const ing of recipe.ingredients) {
+    if ((ing.group || null) !== lastGroup) {
+      lastGroup = ing.group || null;
+      if (lastGroup) lines.push('', lastGroup);
+    }
+    lines.push('- ' + ing.name + ': ' + fmtIngredient(ing, f));
+  }
+  lines.push('', 'Gör så här');
+  if (recipe.steps && recipe.steps.length) {
+    recipe.steps.forEach((step, i) => lines.push((i + 1) + '. ' + step));
+  } else {
+    lines.push('Inga steg nedskrivna.');
+  }
+  if (recipe.source) lines.push('', 'Källa', recipe.source);
+  return lines.join('\n');
+}
+
 // Näringsvärde per portion, oberoende av hur många portioner man just nu lagar.
 // ponytail: ml behandlas som g (ingen densitetstabell), samma precisionsnivå som aggregate().
 function nutritionPerPortion(recipe, nutrients) {
@@ -262,7 +284,7 @@ Regler:
 Recept:
 `;
 
-if (typeof module !== 'undefined') { module.exports = { CATS, COURSES, COURSE_LABELS, aggregate, fmtNum, fmtItem, fmtIngredient, spiceHint, nutritionPerPortion, keyOf, slugify, safeUrl, normalizeState, makeBackup, parseImport, dedupeAllas }; }
+if (typeof module !== 'undefined') { module.exports = { CATS, COURSES, COURSE_LABELS, aggregate, fmtNum, fmtItem, fmtIngredient, recipeAsText, spiceHint, nutritionPerPortion, keyOf, slugify, safeUrl, normalizeState, makeBackup, parseImport, dedupeAllas }; }
 
 // ---------- app ----------
 if (typeof document !== 'undefined') (async function () {
@@ -429,10 +451,10 @@ if (typeof document !== 'undefined') (async function () {
       : '';
     const actionBar = mine
       ? `<p class="action-row">
-        <button class="btn btn-ghost" data-share="${esc(id)}">Dela receptet</button>
-        <button class="btn btn-danger" data-delete="${esc(id)}">Ta bort receptet</button>
+        <button class="btn btn-ghost" data-share="${esc(id)}">Kopiera recept</button>
+        <button class="btn btn-danger" data-delete="${esc(id)}">Ta bort recept</button>
       </p>`
-      : `<p class="action-row"><button class="btn" data-add-allas="${esc(id)}">Lägg till i mina recept</button> <button class="btn btn-ghost" data-share="${esc(id)}">Dela receptet</button></p>`;
+      : `<p class="action-row"><button class="btn" data-add-allas="${esc(id)}">Lägg till i mina recept</button> <button class="btn btn-ghost" data-share="${esc(id)}">Kopiera recept</button></p>`;
     return `<div class="view-head"><h1>${esc(r.title)}</h1>${mine ? `<a class="btn btn-ghost" href="#/redigera/${esc(r.id)}">Redigera</a>` : ''}</div>
       <p class="hint">${esc(COURSE_LABELS[r.course])}</p>
       ${portionBar}
@@ -613,7 +635,15 @@ if (typeof document !== 'undefined') (async function () {
     const h = location.hash || '#/';
     document.querySelectorAll('.nav a').forEach(a => {
       const m = a.dataset.match;
-      const active = m === '#/' ? !h.startsWith('#/lista') && !h.startsWith('#/konto') && !h.startsWith('#/allas') : h.startsWith(m);
+      let active;
+      const recipeMatch = h.match(/^#\/recept\/(.+)$/);
+      if (recipeMatch) {
+        const id = decodeURIComponent(recipeMatch[1]);
+        const mine = state.recipes.some(x => x.id === id);
+        active = mine ? m === '#/' : m === '#/allas';
+      } else {
+        active = m === '#/' ? !h.startsWith('#/lista') && !h.startsWith('#/konto') && !h.startsWith('#/allas') : h.startsWith(m);
+      }
       a.classList.toggle('active', active);
     });
   }
@@ -683,11 +713,11 @@ if (typeof document !== 'undefined') (async function () {
       }
     });
     view.querySelectorAll('[data-share]').forEach(b => b.onclick = async () => {
-      // samma format som AI-importen: mottagaren klistrar in under "Klistra in från AI"
-      const { title, portions, course, source, ingredients, steps } = findRecipe(b.dataset.share);
-      try { await navigator.clipboard.writeText(JSON.stringify([{ title, portions, course, source, ingredients, steps }], null, 2)); b.textContent = 'Kopierat! Skicka till en kompis'; }
+      const r = findRecipe(b.dataset.share);
+      const portions = selFor(r.id)?.portions || previewPortions[r.id] || r.portions;
+      try { await navigator.clipboard.writeText(recipeAsText(r, portions)); b.textContent = 'Kopierat till urklipp!'; }
       catch (e) { b.textContent = 'Kunde inte kopiera'; }
-      setTimeout(() => { b.textContent = 'Dela receptet'; }, 2500);
+      setTimeout(() => { b.textContent = 'Kopiera recept'; }, 2500);
     });
     view.querySelectorAll('[data-add-allas]').forEach(b => b.onclick = () => {
       const id = b.dataset.addAllas;
