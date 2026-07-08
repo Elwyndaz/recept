@@ -8,7 +8,7 @@ Senast uppdaterad: 2026-07-08 (sen kväll). Läget för nästa session (människ
 - Lokal e2e-verifiering gjord med wrangler dev + lokal D1 + riktiga Firebase-tokens (detaljer i git-loggen för `70c93ad`). `node test.js` grönt.
 
 ## Nästa steg
-1. **Namnbyte under Konto** (litet, beslutat 2026-07-08): auto-namnen blir fula ("patzlofgren") och syns som ägaretiketter. PUT /name i workern (unikt, `^[a-zåäö0-9_-]{2,20}$`, 409 vid krock) + inputfält under Konto. Görs FÖRE fas 2 (publika fliken gör namnen mer synliga).
+1. **Deploy av namnbytet** (byggt 2026-07-08, ej deployat): PUT /name i workern + Namn-fält överst under Konto (bara Firebase-vyn, legacy-namn är egenvalda). Lokalt e2e-verifierat mot wrangler dev + lokal D1: byte ok, 409 vid krock, 400 vid ogiltigt namn, 401 utan token, självbyte ok. UI-formen följer pwForm/linkForm-mönstret men är INTE testad med riktig Firebase-inloggning, testa i prod efter deploy. Kräver `npx wrangler deploy` + git push (Patriks godkännande).
 2. **Fas 2 i ARKITEKTUR.md**: publik flik + sparräknare (saves-tabell, recipes_index deriverad vid PUT /state, paginerad feed, hemlig-toggle, starter.json → systemkonto).
 3. Julia loggar in på delade kontot: Patrik trycker "Skapa lösenord" under Konto (syns när kontot saknar lösenordsinloggning), sen loggar hon in med samma e-post + lösenordet.
 4. Mobilverifieringen i butik (checklista i git-historiken för HANDOFF, förmiddagens version) står kvar.

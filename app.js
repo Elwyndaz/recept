@@ -633,6 +633,13 @@ if (typeof document !== 'undefined') (async function () {
       return `<div class="view-head"><h1>Konto</h1></div>
         <p>Inloggad som <strong>${esc(authName || fbUser.email || '')}</strong>${fbUser.email ? ' · ' + esc(fbUser.email) : ''}. Recept och inköpslista synkas mellan dina enheter.</p>
         ${syncError ? '<p class="warn">Kunde inte nå servern, ändringar sparas lokalt och synkas när det går igen.</p>' : ''}
+        <h2>Namn</h2>
+        <form id="nameForm">
+          <label>Visas som ägare på dina recept under Allas recept.
+          <input type="text" id="nameNew" value="${esc(authName || '')}" maxlength="20" required></label>
+          <p id="nameError" class="warn" hidden></p>
+          <p><button class="btn btn-ghost" type="submit">Byt namn</button></p>
+        </form>
         <h2>Inloggningssätt</h2>
         <p class="hint">${ways}</p>
         ${hasGoogle ? '' : '<p><button class="btn btn-ghost" id="linkGoogle" type="button">Koppla Google-inloggning</button></p>'}
@@ -938,6 +945,19 @@ if (typeof document !== 'undefined') (async function () {
       e.preventDefault();
       try { await fb.updatePassword(fbUser, $('#pwNew').value); render(); }
       catch (err) { showErr($('#pwError'), fbErr(err)); }
+    };
+    const nameForm = $('#nameForm');
+    if (nameForm) nameForm.onsubmit = async e => {
+      e.preventDefault();
+      const errEl = $('#nameError');
+      errEl.hidden = true;
+      try {
+        const { name } = await api('/name', { method: 'PUT', body: JSON.stringify({ name: $('#nameNew').value }) });
+        authName = name;
+        localStorage.setItem('authName', name);
+        allasList = null; // ägaretiketterna har bytt namn
+        render();
+      } catch (err) { showErr(errEl, err.message); }
     };
     const linkGoogle = $('#linkGoogle');
     if (linkGoogle) linkGoogle.onclick = async () => {

@@ -3,6 +3,7 @@
 // POST /register {name,pin} -> {token,name}   (legacy, utfasas)
 // POST /login    {name,pin} -> {token,name}   (legacy, utfasas)
 // POST /link     (Bearer Firebase-JWT) {legacyToken} -> {ok,name}  kopplar gammalt konto till Firebase-uid
+// PUT  /name   (Bearer) {name} -> {ok,name}  byter kontonamn (unikt, 409 vid krock)
 // GET  /state  (Bearer) -> {state,name}
 // PUT  /state  (Bearer) <- hela state-blobben {recipes,selections,extras,checked,struck}
 // GET  /allas-recept (Bearer) -> [{...recipe, owner}, ...] från alla konton
@@ -141,6 +142,21 @@ export default {
         }
         await env.DB.prepare('UPDATE users SET firebase_uid = ? WHERE id = ?').bind(claims.sub, legacy.id).run();
         return json({ ok: true, name: legacy.name });
+      }
+
+      if (path === '/name' && req.method === 'PUT') {
+        const u = await userFromRequest(req, env);
+        if (!u) return json({ error: 'Inte inloggad.' }, 401);
+        const b = await req.json().catch(() => ({}));
+        const name = String(b.name || '').trim().toLowerCase();
+        if (!/^[a-zåäö0-9_-]{2,20}$/.test(name)) return json({ error: 'Namn 2–20 tecken (små bokstäver, siffror, - eller _).' }, 400);
+        if (name === u.name) return json({ ok: true, name });
+        try {
+          await env.DB.prepare('UPDATE users SET name = ? WHERE id = ?').bind(name, u.id).run();
+        } catch (e) {
+          return json({ error: 'Namnet är upptaget.' }, 409);
+        }
+        return json({ ok: true, name });
       }
 
       if (path === '/allas-recept' && req.method === 'GET') {
