@@ -410,7 +410,7 @@ if (typeof document !== 'undefined') (async function () {
       const k = keyOf(ing.name);
       const isStruck = mine && struckKeys.includes(k);
       const attr = mine ? ` data-ing="${esc(k)}" style="view-transition-name:ing-${i}"` : '';
-      const row = `<tr class="ing-row${isStruck ? ' struck' : ''}"${attr}><td>${esc(ing.name)}</td><td class="num">${fmtIngredient(ing, f)}${isStruck ? '<span class="tick">✓</span>' : ''}</td></tr>`;
+      const row = `<tr class="ing-row${isStruck ? ' struck' : ''}"${attr}><td>${isStruck ? '<span class="tick">✓</span>' : ''}${esc(ing.name)}</td><td class="num">${fmtIngredient(ing, f)}</td></tr>`;
       if (isStruck) { struckRows.push({ row, order: struckKeys.indexOf(k) }); return; }
       if ((ing.group || null) !== lastGroup) { lastGroup = ing.group || null; if (lastGroup) rows += `<tr class="ing-group"><td colspan="2">${esc(lastGroup)}</td></tr>`; }
       rows += row;

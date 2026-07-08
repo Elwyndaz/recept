@@ -7,7 +7,7 @@ Byggt och live 2026-07-07: sajt, worker, D1, konton, kvittolista, 17 startrecept
 - [ ] Fler recept ur `recept 2.mht` konverterade till starter.json-format. 16 importerade totalt (11 st 2026-07-07, plus chiliräkor/avocadosalsa, Årengs Bloody Mary, Strawberry Daiquiri och Nubbesallad 2026-07-07). Kandidat kvar bl.a.: Höstgryta Irland, Gubbröra (finns bara som tom rubrik i mht, inget recept nedskrivet). Fullständig titellista på ~90 sidor i mht-filen finns inte sparad någonstans, kör om extraktionen i PROJECT.md om fler ska plockas ut. Nya starter-recept syns direkt för alla i "Allas recept", ingen per-konto-migrering behövs längre.
 - [ ] Riktig verifiering i mobil/butik: registrera, välj recept, bocka av, ladda om, andra enheten.
 - [ ] Fyra av de nyimporterade recepten (salsiccia, räkpasta, chili con carne, gazpacho) saknar steg ("Inga steg nedskrivna") eftersom källan bara var video/länk, fyll på vid tillfälle.
-- [ ] Ev. PWA-manifest så sajten kan läggas på hemskärmen och funka offline i butiken.
+- [ ] Ev. service worker för offline i butiken (PWA-manifest + hemskärmsikon klart 2026-07-08; SW kräver cache-versionering vid varje deploy, läggs till om täckningen i butiken faktiskt är dålig).
 - [ ] Ev. "dela recept till kompis"-funktion (export/import av ett enskilt recept som JSON eller länk; hel backup finns redan under Konto).
 
 ## Kända begränsningar (medvetna)

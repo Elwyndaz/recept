@@ -1,0 +1,14 @@
+{
+  "name": "Grammat: recept & inköpslista",
+  "short_name": "Grammat",
+  "lang": "sv",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EAEDDF",
+  "theme_color": "#EAEDDF",
+  "icons": [
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
