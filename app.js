@@ -429,10 +429,11 @@ if (typeof document !== 'undefined') (async function () {
       : '';
     const actionBar = mine
       ? `<p class="action-row">
-        <button class="btn btn-ghost" data-duplicate="${esc(id)}">Kopiera receptet</button>
+        <button class="btn btn-ghost" data-share="${esc(id)}">Kopiera receptet</button>
+        <button class="btn btn-ghost" data-duplicate="${esc(id)}">Gör en kopia</button>
         <button class="btn btn-danger" data-delete="${esc(id)}">Ta bort receptet</button>
       </p>`
-      : `<p class="action-row"><button class="btn" data-add-allas="${esc(id)}">Lägg till i mina recept</button></p>`;
+      : `<p class="action-row"><button class="btn" data-add-allas="${esc(id)}">Lägg till i mina recept</button> <button class="btn btn-ghost" data-share="${esc(id)}">Kopiera receptet</button></p>`;
     return `<div class="view-head"><h1>${esc(r.title)}</h1>${mine ? `<a class="btn btn-ghost" href="#/redigera/${esc(r.id)}">Redigera</a>` : ''}</div>
       <p class="hint">${esc(COURSE_LABELS[r.course])}</p>
       ${portionBar}
@@ -681,6 +682,13 @@ if (typeof document !== 'undefined') (async function () {
         previewPortions[r.id] = Math.max(1, (previewPortions[r.id] || r.portions) + Number(b.dataset.rstep));
         render();
       }
+    });
+    view.querySelectorAll('[data-share]').forEach(b => b.onclick = async () => {
+      // samma format som AI-importen: mottagaren klistrar in under "Klistra in från AI"
+      const { title, portions, course, source, ingredients, steps } = findRecipe(b.dataset.share);
+      try { await navigator.clipboard.writeText(JSON.stringify([{ title, portions, course, source, ingredients, steps }], null, 2)); b.textContent = 'Kopierat!'; }
+      catch (e) { b.textContent = 'Kunde inte kopiera'; }
+      setTimeout(() => { b.textContent = 'Kopiera receptet'; }, 2500);
     });
     view.querySelectorAll('[data-duplicate]').forEach(b => b.onclick = () => {
       const r = state.recipes.find(x => x.id === b.dataset.duplicate);
