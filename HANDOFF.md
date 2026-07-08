@@ -18,6 +18,7 @@ Senast uppdaterad: 2026-07-08 (kväll). Läget för nästa session (människa el
 - **Agentrutin**: D1-export till `backups/` FÖRE riskabla ändringar/D1-migreringar/deploy (kommando i PROJECT.md). Gjord 2026-07-08 10:58 och 15:52 (fas1).
 - **Deploy/push kräver Patriks godkännande** i det här permission-läget, planera inte in det som agentsteg.
 - **Lokal verifiering**: `python -m http.server 8123` i REPO-ROTEN (OBS: cwd:t kan stå kvar i worker/ efter wrangler-kommandon) + `cd worker && npx wrangler dev --port 8787` + peka om `const API` i app.js tillfälligt. Hård omladdning (ignoreCache) efter app.js-ändringar. Lokal D1 seedas med `npx wrangler d1 execute recept --local --file schema.sql`.
+- **Cloudflare-edgecache på frontenden**: orgutveckling.se ligger bakom Cloudflare med `max-age=14400`, så app.js kan serveras GAMMAL i upp till 4 h efter push (index.html gick igenom snabbare). Botemedel: purga i Cloudflare-dashboarden (Caching → Purge → exakt URL) eller vänta. Långsiktig fix när deployerna blir tätare: versionsquery på script-taggen (`app.js?v=N`) per deploy.
 - **PowerShell 5.1**: citattecken i `git commit -m`-here-strings mangalas till pathspecs, undvik `"` i commit-meddelanden eller använd `-F fil`.
 - **Dataobservation 2026-07-08**: julia/hans state krympte mellan 2026-07-07 14:57 och 2026-07-08 (12→0 resp. 11→1 recept), troligen avsiktligt. Vill någon ha tillbaka recept: `backups/recept-2026-07-07-145724.sql`.
 - Fyra recept saknar steg (salsiccia, räkpasta, chili con carne, gazpacho).
