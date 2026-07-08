@@ -86,7 +86,8 @@ invites(code UNIQUE, group_id, created_by, expires_at, used_by)
 Receptformatet (g/ml, cat, group, toTaste osv) ändras inte. Indexet är deriverat och kan alltid byggas om från blobbarna.
 
 ## Faser (varje fas shipbar för sig)
-1. **Firebase Auth**: tokenverifiering i Workern, kontolänkning (Google + lösenord på samma konto), koppla befintliga konton, PIN pensioneras. **BYGGD + lokalt verifierad 2026-07-08, väntar på deploy (se HANDOFF.md).**
+1. **Firebase Auth**: tokenverifiering i Workern, kontolänkning (Google + lösenord på samma konto), koppla befintliga konton, PIN pensioneras. **KLAR: deployad + live-verifierad 2026-07-08 (Patrik testade e-post + Google + länkning i produktion).**
+1b. **Namnbyte** (litet, före fas 2): auto-genererade namn ("patzlofgren") blir synliga ägaretiketter, användaren måste kunna byta. PUT /name (unikt, samma regex som legacy) + fält under Konto.
 2. **Publika fliken + sparräknare**: hemlig-toggle, saves-tabell, recipes_index deriverad vid PUT, paginerad flik sorterad per course, starter.json → systemkonto.
 3. **Grupper**: groups/invites, inbjudningslänk, "Vänners recept"-flik ur samma index.
 4. **Offline/PWA**: service worker med cache-versionering per deploy.
@@ -101,3 +102,4 @@ Ordning 2↔3 kan bytas; 2 ger mest synligt värde per timme.
 - **Delat konto vs sparräknaren**: två personer på ett konto = en sparning, räknaren undervärderar par. Acceptabelt, ingen åtgärd.
 - **Kopiemodellens frusna kopior** (V3): uppgradera till referensmodell bara om användare klagar på att rättningar inte når dem.
 - **D1-taket** (10 GB, en region): ombesluta vid ~miljonen användare, inte före. Exportvägen till Postgres finns.
+- **Google-consentskärmen** visar `grammat-78450.firebaseapp.com` i stället för "Grammat" tills OAuth-brandingen är verifierad (namn/logga/integritetspolicy i Google Cloud Console) och riktigt snyggt först med egen domän som authDomain. Görs i lanseringsfasen (fas 6), funktionen påverkas inte.

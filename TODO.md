@@ -4,7 +4,9 @@ Byggt och live 2026-07-07: sajt, worker, D1, konton, kvittolista, 17 startrecept
 
 ## Kvar / idéer
 - [ ] **v2 (stora live-sajten)**: plan och vägval i `ARKITEKTUR.md` (2026-07-08). Beslut: inget hushåll (par delar konto, Firebase-kontolänkning ger Google + lösenord på samma konto), inga bilder, blob-modellen behålls. Fas 1 = Firebase Auth, sen publik flik + sparräknare (saves-tabell + recipes_index deriverad vid PUT), grupper med inbjudningslänk, PWA/Capacitor, engelska sist.
-- [ ] **Fas 1 deployas**: byggd + lokalt e2e-verifierad 2026-07-08, väntar på worker-deploy → frontend-push (I DEN ORDNINGEN) + manuellt Google-inloggningstest. Detaljer i HANDOFF.md.
+- [x] **Fas 1 deployad + live-verifierad 2026-07-08** (e-post, Google, kontolänkning testade i produktion av Patrik).
+- [ ] **Namnbyte under Konto** (nästa, före fas 2): auto-genererade namn ("patzlofgren") måste kunna bytas. PUT /name + fält under Konto. Se HANDOFF.md.
+- [ ] Google-consentskärmens branding (visar firebaseapp.com-domänen): OAuth-verifiering + egen authDomain, hör till lanseringsfasen.
 - [ ] Legacy-PIN-koden (register/login/token-auth i worker + hopfällda formulär i app.js) rensas när alla befintliga konton är kopplade till Firebase (kolla: `SELECT name FROM users WHERE firebase_uid IS NULL`).
 - [ ] Stående agentrutin: före riskabla ändringar, D1-migreringar eller deploy ska Codex/Claude köra D1-export till lokal `backups/` (`npx wrangler d1 export recept --remote --output backups/recept-YYYY-MM-DD-HHMMSS.sql`). `backups/` är git-ignored och får inte pushas/publiceras.
 - [ ] (pausad 2026-07-08, Patrik vill inte ha fler just nu) Fler recept ur `recept 2.mht` konverterade till starter.json-format. 16 importerade totalt (11 st 2026-07-07, plus chiliräkor/avocadosalsa, Årengs Bloody Mary, Strawberry Daiquiri och Nubbesallad 2026-07-07). Kandidat kvar bl.a.: Höstgryta Irland, Gubbröra (finns bara som tom rubrik i mht, inget recept nedskrivet). Fullständig titellista på ~90 sidor i mht-filen finns inte sparad någonstans, kör om extraktionen i PROJECT.md om fler ska plockas ut. Nya starter-recept syns direkt för alla i "Allas recept", ingen per-konto-migrering behövs längre.
