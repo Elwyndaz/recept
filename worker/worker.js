@@ -205,7 +205,7 @@ export default {
           let s;
           try { s = JSON.parse(row.state); } catch (e) { continue; }
           if (!s || !Array.isArray(s.recipes)) continue;
-          for (const r of s.recipes) out.push({ ...r, owner: row.name });
+          for (const r of s.recipes) { if (r.private !== true) out.push({ ...r, owner: row.name }); }
         }
         return json(out);
       }
