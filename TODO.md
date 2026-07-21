@@ -1,5 +1,7 @@
 # TODO: receptsajten
 
+> Tvärprojekt-prio: se `../master-backlog.md`, uppdatera båda vid ändring.
+
 Byggt och live 2026-07-07: sajt, worker, D1, konton, kvittolista, 17 startrecept, näringsvärde per portion, receptkategorier, hel-state backup/återställning. 2026-07-08: ingrediensbockning i receptvyn (grön bock till vänster, senast bockad överst i avbockat-blocket, utesluts ur listan), wake lock, helklickbara kort, multi-recept-import från AI, PWA-manifest med riktiga ikoner (icons/, "g."-ordmärke), "Dela receptet" via urklipps-JSON, designöversyn (senap ersatt av grönt #2E6B43, AA-kontrast på sekundär/överstruken text), "Gör en kopia" borttagen. Se PROJECT.md för arkitektur.
 
 ## Kvar / idéer
