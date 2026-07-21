@@ -1,0 +1,7 @@
+{
+  "hosting": {
+    "site": "grammat-78450",
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*"]
+  }
+}
