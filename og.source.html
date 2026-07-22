@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!-- Source for /recept/og.png (1200x630). -->
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Spline+Sans+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --papper:#EAEDDF; --ink:#20281A; --ink2:#5C5A4E; --lingon:#9E2B3E;
+    --font-display:'Bricolage Grotesque',sans-serif; --font-mono:'Spline Sans Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1200px;height:630px}
+  body{
+    background:var(--papper); color:var(--ink);
+    display:flex; align-items:center; gap:74px; padding:0 110px; font-family:var(--font-mono);
+  }
+  .mark{width:284px;height:284px;flex:none;border-radius:56px;overflow:hidden;
+    box-shadow:0 2px 4px rgba(32,40,26,.06),0 30px 60px -20px rgba(32,40,26,.32)}
+  .mark img{width:100%;height:100%;display:block}
+  .copy{display:flex;flex-direction:column}
+  .wordmark{font-family:var(--font-display);font-weight:800;font-size:132px;line-height:.98;letter-spacing:-.03em;color:var(--ink)}
+  .wordmark em{font-style:normal;color:var(--lingon)}
+  .tagline{font-family:var(--font-mono);font-weight:600;font-size:23px;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase;margin-top:24px;white-space:nowrap}
+  .url{margin-top:34px;font-family:var(--font-mono);font-weight:600;font-size:24px;letter-spacing:.06em;color:var(--lingon);text-transform:lowercase}
+</style>
+</head>
+<body>
+  <div class="mark"><img src="/recept/icons/icon-512.png" alt=""></div>
+  <div class="copy">
+    <div class="wordmark">gram<em>mat</em>.</div>
+    <div class="tagline">recept &amp; inköpslista · allt i gram</div>
+    <div class="url">buildapp.se/recept</div>
+  </div>
+</body>
+</html>
