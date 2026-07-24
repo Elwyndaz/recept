@@ -7,7 +7,7 @@
 // GET  /state  (Bearer) -> {state,name}
 // PUT  /state  (Bearer) <- hela state-blobben {recipes,selections,extras,checked,struck}
 // GET  /allas-recept (Bearer) -> [{...recipe, owner}, ...] från alla konton (utfasas, ersatt av /feed)
-// GET  /feed   (Bearer) -> [{...recipe, owner, ownerId, saves}, ...] ur recipes_index
+// GET  /feed   (ingen inloggning krävs) -> [{...recipe, owner, ownerId, saves}, ...] ur recipes_index
 // GET  /users/:id/recipes (Bearer) -> {owner, ownerId, recipes:[...]} offentliga skapade recept
 // GET  /friends-feed (Bearer) -> [{...recipe, owner, ownerId, saves}, ...] fran gruppmedlemmar
 // GET  /groups (Bearer) -> [{id,name,createdBy,canInvite,members:[...]}]
@@ -229,10 +229,9 @@ export default {
       }
 
       // Publika fliken: läser indexet, aldrig blobbarna. Mest sparade först.
+      // Ingen inloggning krävs, publika recept ska synas för alla (bara Lägg till/spara kräver konto).
       // ponytail: LIMIT utan offset-paginering, riktig paginering när sajten närmar sig 200 publika recept.
       if (path === '/feed' && req.method === 'GET') {
-        const u = await userFromRequest(req, env);
-        if (!u) return json({ error: 'Inte inloggad.' }, 401);
         const { results } = await env.DB.prepare(
           `SELECT i.owner_id, i.saves_count, i.data, u.name AS owner FROM recipes_index i
            JOIN users u ON u.id = i.owner_id WHERE i.visibility = 'public'

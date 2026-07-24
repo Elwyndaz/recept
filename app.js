@@ -101,6 +101,20 @@ function recipeAsText(recipe, portions) {
   return lines.join('\n');
 }
 
+// Slår upp näringsdata för ett ingrediensnamn. Exakt träff först, annars faller den tillbaka
+// på den längsta nutrients-nyckeln som förekommer som ett helt ord i namnet (t.ex. "färskost"
+// i "färskost med vitlök"), så sammansatta/smaksatta varianter inte bara saknas i onödan.
+function findNutrient(name, nutrients) {
+  const key = keyOf(name);
+  if (nutrients[key]) return nutrients[key];
+  let bestKey = null;
+  for (const k of Object.keys(nutrients)) {
+    const re = new RegExp('(^|[^a-zà-öø-ÿ])' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-zà-öø-ÿ])');
+    if (re.test(key) && (!bestKey || k.length > bestKey.length)) bestKey = k;
+  }
+  return bestKey ? nutrients[bestKey] : null;
+}
+
 // Näringsvärde per portion, oberoende av hur många portioner man just nu lagar.
 // ponytail: ml behandlas som g (ingen densitetstabell), samma precisionsnivå som aggregate().
 function nutritionPerPortion(recipe, nutrients) {
@@ -108,7 +122,7 @@ function nutritionPerPortion(recipe, nutrients) {
   const missing = [];
   for (const ing of recipe.ingredients) {
     if (ing.amount == null) continue; // efter smak: går inte att räkna
-    const n = nutrients[keyOf(ing.name)];
+    const n = findNutrient(ing.name, nutrients);
     if (!n) { missing.push(ing.name); continue; }
     const f = ing.amount / 100;
     t.kcal += n.kcal * f; t.protein += n.protein * f; t.carbs += n.carbs * f; t.fat += n.fat * f;
@@ -284,12 +298,13 @@ Regler:
 - Har receptet delar (t.ex. sås, garnering): sätt "group": "Sås" osv. på de ingrediensernas rader.
 - "steps": tillagningsstegen som en lista med strängar, ett steg per element. Saknas steg: tom lista.
 - Ingrediensnamn: gemener, korta och butiksvänliga ("gul lök", inte "finhackad stor gul lök"). Samma vara ska heta samma sak som i andra recept.
+- Beskriver källan HUR en ingrediens ska förberedas (finhackad, riven, tärnad, skivad, pressad osv.) och det inte redan står i ett steg: flytta in det i lämpligt steg i stället för att bara stryka det, t.ex. "Finhacka jalapeñon och blanda ihop alla ingredienser."
 - "source": receptets webbadress om den framgår, annars tom sträng.
 
 Recept:
 `;
 
-if (typeof module !== 'undefined') { module.exports = { CATS, COURSES, COURSE_LABELS, normalizeCourse, aggregate, fmtNum, fmtItem, fmtIngredient, recipeAsText, spiceHint, nutritionPerPortion, keyOf, slugify, safeUrl, normalizeState, makeBackup, parseImport, dedupeAllas }; }
+if (typeof module !== 'undefined') { module.exports = { CATS, COURSES, COURSE_LABELS, normalizeCourse, aggregate, fmtNum, fmtItem, fmtIngredient, recipeAsText, spiceHint, nutritionPerPortion, findNutrient, keyOf, slugify, safeUrl, normalizeState, makeBackup, parseImport, dedupeAllas }; }
 
 // ---------- app ----------
 if (typeof document !== 'undefined') (async function () {
@@ -383,7 +398,7 @@ if (typeof document !== 'undefined') (async function () {
     for (const k of Object.keys(inviteLinks)) delete inviteLinks[k];
   }
   function loadAllas() {
-    if (!loggedIn() || allasList !== null || allasLoading) return;
+    if (allasList !== null || allasLoading) return;
     allasLoading = true;
     allasLoadError = false;
     api('/feed')
@@ -491,12 +506,10 @@ if (typeof document !== 'undefined') (async function () {
   }
 
   function viewAllasRecept() {
-    // Inloggad med laddad feed: startrecepten kommer från systemkontot grammat (samma källa
-    // som allt annat). Utloggad/laddar: starter.json som förut.
+    // Startrecepten kommer från systemkontot grammat (samma källa som allt annat), oavsett
+    // inloggning, feeden är publik. Bara laddar-state skiljer sig innan första hämtningen.
     let starterRows = starter, othersHtml;
-    if (!loggedIn()) {
-      othersHtml = '<p class="hint">Logga in för att se recept andra lagt till.</p>';
-    } else if (allasList === null) {
+    if (allasList === null) {
       loadAllas();
       othersHtml = allasLoadError ? '<p class="warn">Kunde inte ladda recept från andra just nu.</p>' : '<p class="hint">Laddar recept från andra …</p>';
     } else {
@@ -573,7 +586,7 @@ if (typeof document !== 'undefined') (async function () {
       ? '<ol class="steps">' + r.steps.map(s => `<li>${esc(s)}</li>`).join('') + '</ol>'
       : '<p class="empty">Inga steg nedskrivna.</p>';
     const nutr = nutritionPerPortion(r, nutrients);
-    const nutrLine = `<p class="hint">Per portion: ${fmtNum(nutr.kcal)} kcal · ${fmtNum(nutr.protein)} g protein · ${fmtNum(nutr.carbs)} g kolhydrater · ${fmtNum(nutr.fat)} g fett${nutr.missing.length ? ' · ofullständigt, ' + nutr.missing.length + ' ingrediens' + (nutr.missing.length > 1 ? 'er' : '') + ' saknar data' : ''} (källa: <a href="https://soknaringsinnehall.livsmedelsverket.se/" rel="noopener">Livsmedelsverket</a> m.fl.)</p>`;
+    const nutrLine = `<p class="hint">Per portion: ${fmtNum(nutr.kcal)} kcal · ${fmtNum(nutr.protein)} g protein · ${fmtNum(nutr.carbs)} g kolhydrater · ${fmtNum(nutr.fat)} g fett${nutr.missing.length ? ' · ofullständigt, saknar data för ' + nutr.missing.map(esc).join(', ') : ''} (källa: <a href="https://soknaringsinnehall.livsmedelsverket.se/" rel="noopener">Livsmedelsverket</a> m.fl.)</p>`;
     const portionBar = mine
       ? `<div class="portion-bar">
         <div class="stepper"><button data-rstep="-1" aria-label="Färre portioner">−</button><span>${portions} portioner</span><button data-rstep="1" aria-label="Fler portioner">+</button></div>
